@@ -39,4 +39,5 @@ func InitDb() {
 	Db.AutoMigrate(&models.Cart{})
 	Db.AutoMigrate(&models.Product{})
 	Db.AutoMigrate(&models.Category{})
+	//Db.AutoMigrate(&models.Invoice{})
 }

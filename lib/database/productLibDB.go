@@ -1,4 +1,4 @@
-package services
+package libdb
 
 import (
 	"altastore/config"
