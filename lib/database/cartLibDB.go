@@ -1,4 +1,4 @@
-package services
+package libdb
 
 import (
 	"altastore/config"
@@ -8,7 +8,7 @@ import (
 func GetCartByUserId(userId int) ([]models.CartAPI, error) {
 	var cart []models.CartAPI
 
-	res := config.Db.Model(&models.Cart{}).Where(`user_id = ?`, userId).Find(&cart)
+	res := config.Db.Table("carts").Select("products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_name = products.product_name").Where(`user_id = ?`, userId).Find(&cart)
 
 	if res.Error != nil {
 		return []models.CartAPI{}, res.Error
