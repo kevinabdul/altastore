@@ -8,8 +8,8 @@ type CheckoutAPI struct {
 	UserID			uint 		`gorm:"primaryKey;autoIncrement:false" json:"user_id"`
 	Products		[]CartAPI 	`gorm:"primaryKey;not null;type:varchar(50)" json:"products"`
 	Total			uint 		`gorm:"not null;type:smallint" json:"total"`
-	Shippment		string
-	Payment_method	string
+	// Shipment		string		`gorm:"type:enum('jne', 'pos', 'tiki');default:'jne'" json:"shipment"`
+	PaymentOptions	[]string	`json:"payment_options"`
 }
 
 type Invoice struct {
