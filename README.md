@@ -28,3 +28,12 @@ DELETE  /users/:id
 ``` bash
 GET     /products
 ```
+
+
+### Checkout
+``` bash
+GET     /checkout
+```
+``` bash
+POST    /checkout
+```
