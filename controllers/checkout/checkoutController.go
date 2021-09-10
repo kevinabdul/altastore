@@ -24,5 +24,5 @@ func GetCheckoutByUserIdController(c echo.Context) error {
 	return c.JSON(http.StatusOK, struct {
 		Status 	string
 		Data 	models.CheckoutAPI
-	}{Status: "success", CheckoutDisplay: checkout})
+	}{Status: "success", Data: checkout})
 }

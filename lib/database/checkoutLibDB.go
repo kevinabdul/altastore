@@ -24,7 +24,7 @@ func GetCheckoutByUserId(userId int) (models.CheckoutAPI, error){
 	checkout.UserID = uint(userId)
 	checkout.Products = cart
 	checkout.Total = total
-
+	checkout.PaymentOptions = []string{"alfamart", "indomaret", "bank transfer", "gopay", "ovo", "link aja", "dana"}
 	return checkout, nil
 }
 
