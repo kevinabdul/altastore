@@ -1,14 +1,14 @@
 package config
 
 import (
-	"fmt"
 	"altastore/models"
-	"os"
+	"fmt"
 	"log"
-	
-	"gorm.io/gorm"
-	"gorm.io/driver/mysql"
+	"os"
+
 	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var (
@@ -41,3 +41,5 @@ func InitDb() {
 	Db.AutoMigrate(&models.Category{})
 	//Db.AutoMigrate(&models.Invoice{})
 }
+
+// this config for API testing purpose
