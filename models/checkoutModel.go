@@ -14,12 +14,23 @@ type CheckoutAPI struct {
 
 type Invoice struct {
 	UserID			uint		`gorm:"primaryKey;autoIncrement:false"`
-	InvoiceId		string		`gorm:"primaryKey;not null;type:varchar(60)" json:"invoice_id"`
+	InvoiceID		string		`gorm:"primaryKey;not null;type:varchar(60)" json:"invoice_id"`
 	Paid			string		`gorm:"type:enum('false', 'true');default:'false'" json:"paid"`
+	PaymentMethod	string		`gorm:"type:varchar(25)" json:"payment_method"`	
 	CreatedAt 		time.Time
+	UpdatedAt		time.Time
 }
 
 type InvoiceAPI struct {
 	UserID			uint		`gorm:"primaryKey;autoIncrement:false" json:"user_id"`
 	InvoiceId		string		`gorm:"primaryKey;not null;type:varchar(60)" json:"invoice_id"`
+}
+
+type Payment struct {
+	PaymentID		uint 		`gorm:"primaryKey" json:"payment_id"`
+	PaymentMethod	string		`gorm:"unique;type:varchar(25)" json:"payment_method"`
+}
+
+type PaymentAPI struct {
+	PaymentMethod 	string		`json:"payment_method"`
 }

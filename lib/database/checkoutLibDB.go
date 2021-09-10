@@ -3,6 +3,10 @@ package libdb
 import (
 	"altastore/config"
 	"altastore/models"
+	"time"
+	"fmt"
+	"errors"
+	"strings"
 )
 
 func GetCheckoutByUserId(userId int) (models.CheckoutAPI, error){
@@ -28,51 +32,31 @@ func GetCheckoutByUserId(userId int) (models.CheckoutAPI, error){
 	return checkout, nil
 }
 
-// func UpdateCartByUserId(userCart []models.Cart, userId int)  (int64, error) {
-// 	var rowsAffected int64
+func AddCheckoutByUserId(paymentMethod string, userId int) (string, int64, error) {
+	invoice := models.Invoice{}
+	invoice.UserID = uint(userId)
+	invoiceId := fmt.Sprintf("USER_%v:%v", userId, time.Now().String()[0:19])
+	invoice.InvoiceID = invoiceId
 
-// 	for _, cartItem := range userCart {
-// 		if cartItem.Quantity == 0 || cartItem.ProductName == ""{
-// 			continue
-// 		}
-		
-// 		cartItem.UserID = uint(userId)
-		
-// 		cart := models.Cart{}
-		
-// 		productTarget := models.Product{}
-// 		prodSearchRes := config.Db.Where(`product_name = ?`, cartItem.ProductName).Find(&productTarget)
+	payment := models.Payment{}
+	payment.PaymentMethod = paymentMethod
+	paymentCheck := config.Db.Model(&models.Payment{}).Where("payment_method = ?", paymentMethod).Find(&payment)
 
-// 		if prodSearchRes.Error != nil {
-// 			return prodSearchRes.RowsAffected, prodSearchRes.Error
-// 		}
+	if paymentCheck.Error != nil {
+		return  "", paymentCheck.RowsAffected , paymentCheck.Error
+	}
 
-// 		if prodSearchRes.RowsAffected == 0 {
-// 			continue
-// 		}
-		
-// 		cartItemSearchRes := config.Db.Where(`user_id = ? AND product_name = ?`, userId, cartItem.ProductName).Find(&cart)
+	if paymentCheck.RowsAffected == 0 {
+		return  "", paymentCheck.RowsAffected , errors.New("Payment is not supported")
+	}
 
-// 		if cartItemSearchRes.Error != nil {
-// 			return cartItemSearchRes.RowsAffected, cartItemSearchRes.Error
-// 		} else if cartItemSearchRes.RowsAffected == 0 {
-// 			insertRes := config.Db.Select("UserID", "ProductName", "Quantity").Create(&cartItem)
+	invoice.PaymentMethod = strings.ToLower(paymentMethod)
 
-// 			if insertRes.Error != nil || insertRes.RowsAffected == 0 {
-// 				return insertRes.RowsAffected, insertRes.Error
-// 			}
+	invoiceCreation := config.Db.Create(&invoice)
 
-// 			rowsAffected++
-// 		} else if cartItemSearchRes.RowsAffected != 0 && cart.Quantity != cartItem.Quantity{
-// 			updateRes := config.Db.Model(&cart).Select("quantity").Updates(cartItem)
-			
-// 			if updateRes.Error != nil || updateRes.RowsAffected == 0{
-// 				return updateRes.RowsAffected, updateRes.Error
-// 			}
+	if invoiceCreation.Error != nil || invoiceCreation.RowsAffected == 0{
+		return "", invoiceCreation.RowsAffected , invoiceCreation.Error
+	}
 
-// 			rowsAffected++
-// 		}
-// 	}
-
-// 	return rowsAffected, nil
-// }
+	return invoiceId, invoiceCreation.RowsAffected, nil
+}
