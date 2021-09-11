@@ -29,9 +29,9 @@ func GetCheckoutByUserIdController(c echo.Context) error {
 
 func AddCheckoutByUserIdController(c echo.Context) error {
 	userId , _ := strconv.Atoi(c.Request().Header.Get("userId"))
-	payment := models.PaymentAPI{}
+	payment := models.PaymentMethodAPI{}
 	c.Bind(&payment)
-	invoiceId, rowsAffected, err := libdb.AddCheckoutByUserId(payment.PaymentMethod, userId)
+	invoiceId, rowsAffected, err := libdb.AddCheckoutByUserId(&payment, userId)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, struct {

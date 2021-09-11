@@ -6,7 +6,7 @@ import (
 	"time"
 	"fmt"
 	"errors"
-	"strings"
+	//"strings"
 )
 
 func GetCheckoutByUserId(userId int) (models.CheckoutAPI, error){
@@ -18,7 +18,7 @@ func GetCheckoutByUserId(userId int) (models.CheckoutAPI, error){
 	}
 
 	if cartSearchRes.RowsAffected == 0 {
-		return models.CheckoutAPI{}, errors.New("No item found in the cart")
+		return models.CheckoutAPI{}, errors.New("No product found in the cart")
 	}
 
 	var total uint
@@ -36,39 +36,32 @@ func GetCheckoutByUserId(userId int) (models.CheckoutAPI, error){
 	return checkout, nil
 }
 
-func AddCheckoutByUserId(paymentMethod string, userId int) (string, int64, error) {
-	count := 0
-
-	config.Db.Model(&models.Cart{}).Select("count(user_id)").Where("user_id = ?", userId).Find(&count)
-
-	if count == 0 {
-		return "", int64(0), errors.New("No products found in the cart. Add products first before checking out")
-	}
-
-	payment := models.Payment{}
-	payment.PaymentMethod = paymentMethod
-
-	paymentCheck := config.Db.Model(&models.Payment{}).Where("payment_method = ?", paymentMethod).Find(&payment)
-
-	if paymentCheck.Error != nil {
-		return  "", paymentCheck.RowsAffected , paymentCheck.Error
-	}
-
-	if paymentCheck.RowsAffected == 0 {
-		return  "", paymentCheck.RowsAffected , errors.New("Payment is not supported")
-	}
-
+func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (string, int64, error) {
 	carts := []models.Cart{}
 
-	findCartRes := config.Db.Where("user_id = ?", userId).Find(&carts)
+	findCartRes := config.Db.Table("carts").Where("user_id = ?", userId).Find(&carts)
 
-	if findCartRes.Error != nil || findCartRes.RowsAffected == 0 {
+	if findCartRes.Error != nil {
 		return "", findCartRes.RowsAffected, findCartRes.Error
 	}
 
+	if findCartRes.RowsAffected == 0 {
+		return "", int64(0), errors.New("No products found in the cart. Add products first before checking out")
+	}
+
+	paymentMethodCheck := config.Db.Table("payment_methods").Where("payment_method_name = ?", payment.PaymentMethodName).Find(payment)
+
+	if paymentMethodCheck.Error != nil {
+		return  "", paymentMethodCheck.RowsAffected , paymentMethodCheck.Error
+	}
+
+	if paymentMethodCheck.RowsAffected == 0 {
+		return  "", paymentMethodCheck.RowsAffected , errors.New("Payment method is not supported")
+	}
+
 	deletedCart := models.Cart{}
-	deleteRes := config.Db.Where("user_id = ?", userId).Unscoped().Delete(&deletedCart)
-	fmt.Println(deletedCart)
+
+	deleteRes := config.Db.Table("carts").Where("user_id = ?", userId).Unscoped().Delete(&deletedCart)
 
 	if deleteRes.Error != nil {
 		return "", deleteRes.RowsAffected, deleteRes.Error
@@ -78,17 +71,37 @@ func AddCheckoutByUserId(paymentMethod string, userId int) (string, int64, error
 		return "", deleteRes.RowsAffected, errors.New("Failed to delete user.")
 	}
 
-	invoice := models.Invoice{}
-	invoice.UserID = uint(userId)
+	transaction := models.Transaction{}
+	transaction.UserID = uint(userId)
 	invoiceId := fmt.Sprintf("USER_%v:%v", userId, time.Now().String()[0:19])
-	invoice.InvoiceID = invoiceId
-	invoice.PaymentMethod = strings.ToLower(paymentMethod)
+	transaction.InvoiceID = invoiceId
+	transaction.PaymentMethodName = payment.PaymentMethodName
 
-	invoiceCreation := config.Db.Create(&invoice)
+	transactionCreation := config.Db.Create(&transaction)
 
-	if invoiceCreation.Error != nil || invoiceCreation.RowsAffected == 0{
-		return "", invoiceCreation.RowsAffected , invoiceCreation.Error
+	if transactionCreation.Error != nil {
+		return "", transactionCreation.RowsAffected , transactionCreation.Error
 	}
 
-	return invoiceId, invoiceCreation.RowsAffected, nil
+	if transactionCreation.RowsAffected == 0{
+		return "", transactionCreation.RowsAffected , errors.New("Failed to add transaction")
+	}
+
+	transactionDetail := models.TransactionDetail{}
+	transactionDetail.InvoiceID = invoiceId
+
+	for _, cartItem := range carts {
+		transactionDetail.ProductName = cartItem.ProductName
+		transactionDetailCreation := config.Db.Create(&transactionDetail)
+
+		if transactionDetailCreation.Error != nil {
+			return "", transactionDetailCreation.RowsAffected, transactionDetailCreation.Error
+		}
+
+		if transactionDetailCreation.RowsAffected == 0 {
+			return "", transactionDetailCreation.RowsAffected, errors.New("Failed to add transaction detail")
+		}
+	}
+
+	return invoiceId, transactionCreation.RowsAffected, nil
 }

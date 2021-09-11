@@ -39,8 +39,9 @@ func InitDb() {
 	Db.AutoMigrate(&models.Cart{})
 	Db.AutoMigrate(&models.Product{})
 	Db.AutoMigrate(&models.Category{})
-	Db.AutoMigrate(&models.Invoice{})
-	Db.AutoMigrate(&models.Payment{})
+	Db.AutoMigrate(&models.Transaction{})
+	Db.AutoMigrate(&models.TransactionDetail{})
+	Db.AutoMigrate(&models.PaymentMethod{})
 }
 
 // this config for API testing purpose
