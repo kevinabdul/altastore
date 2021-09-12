@@ -70,7 +70,7 @@ func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.T
 	}
 
 	if deleteRes.RowsAffected == 0 {
-		return models.TransactionAPI{}, deleteRes.RowsAffected, errors.New("Failed to delete user.")
+		return models.TransactionAPI{}, deleteRes.RowsAffected, errors.New("Failed to delete items in user's cart.")
 	}
 
 	invoiceId := fmt.Sprintf("USER_%v:%v", userId, time.Now().String()[0:19])
@@ -81,6 +81,7 @@ func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.T
 	for _, cartItem := range carts {
 		transactionDetail.ProductName = cartItem.ProductName
 		transactionDetail.ProductPrice = cartItem.Price
+		transactionDetail.Quantity = cartItem.Quantity
 		total += uint(cartItem.Price) * uint(cartItem.Quantity)
 
 		transactionDetailCreation := config.Db.Create(&transactionDetail)
