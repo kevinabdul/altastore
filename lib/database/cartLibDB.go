@@ -1,6 +1,9 @@
 package libdb
 
 import (
+	"errors"
+	"fmt"
+
 	"altastore/config"
 	"altastore/models"
 )
@@ -37,7 +40,7 @@ func UpdateCartByUserId(userCart []models.Cart, userId int)  (int64, error) {
 		}
 
 		if prodSearchRes.RowsAffected == 0 {
-			continue
+			return prodSearchRes.RowsAffected, errors.New(fmt.Sprintf("No product named %s found in the product list", cartItem.ProductName))
 		}
 		
 		cartItemSearchRes := config.Db.Where(`user_id = ? AND product_name = ?`, userId, cartItem.ProductName).Find(&cart)
@@ -47,16 +50,24 @@ func UpdateCartByUserId(userCart []models.Cart, userId int)  (int64, error) {
 		} else if cartItemSearchRes.RowsAffected == 0 {
 			insertRes := config.Db.Select("UserID", "ProductName", "Quantity").Create(&cartItem)
 
-			if insertRes.Error != nil || insertRes.RowsAffected == 0 {
+			if insertRes.Error != nil {
 				return insertRes.RowsAffected, insertRes.Error
 			}
 
+			if insertRes.RowsAffected == 0 {
+				return insertRes.RowsAffected, errors.New(fmt.Sprintf("Failed to add item %s to user's cart", cartItem.ProductName))
+			}
+
 			rowsAffected++
-		} else if cartItemSearchRes.RowsAffected != 0 && cart.Quantity != cartItem.Quantity{
+		} else if cartItemSearchRes.RowsAffected != 0 && cart.Quantity != cartItem.Quantity {
 			updateRes := config.Db.Model(&cart).Select("quantity").Updates(cartItem)
 			
-			if updateRes.Error != nil || updateRes.RowsAffected == 0{
+			if updateRes.Error != nil {
 				return updateRes.RowsAffected, updateRes.Error
+			}
+
+			if updateRes.RowsAffected == 0{
+				return updateRes.RowsAffected, errors.New(fmt.Sprintf("Failed to update item %s in user's cart", cartItem.ProductName))
 			}
 
 			rowsAffected++
@@ -64,4 +75,29 @@ func UpdateCartByUserId(userCart []models.Cart, userId int)  (int64, error) {
 	}
 
 	return rowsAffected, nil
+}
+
+func DeleteCartByUserId(items []string, userId int) (int, error) {
+	if len(items) == 0 {
+		return 0, errors.New("No item found in delete list. Please specify before deleting")
+	}
+
+	deletedCart := models.Cart{}
+	deletedItem := 0
+
+	for _, item := range items {
+		deleteRes := config.Db.Table("carts").Where("user_id = ? and product_name = ?", userId, item).Unscoped().Delete(&deletedCart)
+		
+		if deleteRes.Error != nil {
+			return 0, deleteRes.Error
+		}
+
+		if deleteRes.RowsAffected == 0 {
+			return 0, errors.New(fmt.Sprintf("No item named %s is found in user's cart.", item))
+		}
+
+		deletedItem++
+	}
+
+	return deletedItem, nil
 }

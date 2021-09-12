@@ -13,7 +13,7 @@ type Cart struct {
 }
 
 type CartAPI struct {
-	ProductName 	string		`gorm:"primaryKey;not null;type:varchar(50)" json:"product_name"`
-	Price			uint 		`gorm:"not null;type:int" json:"price_per_product"`
-	Quantity		uint 		`gorm:"not null;type:smallint" json:"quantity"`
+	ProductName 	string		`json:"product_name"`
+	Price			uint 		`json:"price_per_product"`
+	Quantity		uint 		`json:"quantity"`
 }

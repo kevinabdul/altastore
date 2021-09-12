@@ -3,7 +3,6 @@ package libdb
 import (
 	"altastore/config"
 	"altastore/models"
-	"altastore/util/jwt"
 )
 
 func GetUsers() ([]models.UserAPI, error) {
@@ -91,21 +90,4 @@ func DeleteUser(targetId int) (int, error) {
 	}
 
 	return 1, nil
-}
-
-func LoginUser(user *models.User) (string ,error) {
-	res := config.Db.Where("email = ? AND password = ?", user.Email, user.Password).First(user)
-
-	if res.Error != nil {
-		return "", res.Error
-	}
-
-	token, err := implementjwt.CreateToken(int(user.ID))
-
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
-
 }

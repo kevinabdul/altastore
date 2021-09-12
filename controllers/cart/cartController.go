@@ -42,11 +42,39 @@ func UpdateCartByUserIdController(c echo.Context) error {
 		}{Status: "failed", Message: err.Error()})
 	}
 
-	if rowsAffected == int64(0) {
+	if rowsAffected == 0 {
 		return c.JSON(http.StatusBadRequest, struct {
 			Status 	string
 			Message string
-		}{Status: "failed", Message: "No change done to cart"})
+		}{Status: "success", Message: "No change in user's cart"})
+	}
+
+	return c.JSON(http.StatusOK, struct {
+		Status 	string
+		Message	string
+	}{Status: "success", Message: "Cart is updated!"})
+}
+
+func DeleteCartByUserIdController(c echo.Context) error {
+	userId , _ := strconv.Atoi(c.Request().Header.Get("userId"))
+	
+	var userCart []string
+	c.Bind(&userCart)
+	
+	rowsAffected, err := libdb.DeleteCartByUserId(userCart, userId)	
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, struct {
+			Status 	string
+			Message string
+		}{Status: "failed", Message: err.Error()})
+	}
+
+	if rowsAffected == 0 {
+		return c.JSON(http.StatusBadRequest, struct {
+			Status 	string
+			Message string
+		}{Status: "success", Message: "No change in user's cart"})
 	}
 
 	return c.JSON(http.StatusOK, struct {
