@@ -1,39 +1,27 @@
 # Alta Store Task 
 
 ## Endpoint
-### Users
-```bash
-GET     /users
-```
-``` bash
-GET     /users/:id
-```
-``` bash
-GET     /users/:id/carts
-```
-``` bash
-POST    /users
-```
-``` bash
-PUT     /users/:id
-```
-``` bash
-PUT     /users/:id/carts
-```
-``` bash
-DELETE  /users/:id
-```
+## Users
+| Method | Endpoint | Description|
+|:-----|:--------|:----------|
+| GET    |   /users||
+| GET   |   /users/:id|
+| GET   |   /users/:id/carts| Get cart by user's id. id paramater must be equal with user_id in jwt
+| POST  |   /users|
+| PUT   |   /users/:id| Update User by id. id paramater must be equal with user_id in jwt
+| PUT   |   /users/:id/carts| Update cart by user's id. id paramater must be equal with user_id in jwt
+| DELETE|   /users/:id
 
 ### Products
-``` bash
-GET     /products
-```
+| Method | Endpoint | Description|
+|:-----|:--------|:----------|
+|GET   |  /products| Get all product. Can be filtered by category query
+
 
 
 ### Checkout
-``` bash
-GET     /checkout
-```
-``` bash
-POST    /checkout
-```
+| Method | Endpoint | Description|
+|:-----|:--------|:----------|
+|GET   |     /checkout
+|POST  |  /checkout
+
