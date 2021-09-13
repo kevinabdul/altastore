@@ -6,14 +6,12 @@ import(
 )
 
 func registerPaymentRoutes() {
-	paymentGroup := e.Group("/payments/:id")
+	paymentGroup := e.Group("/payments")
 
 	paymentGroup.Use(middlewares.AuthenticateUser)
 
-	paymentGroup.Use(middlewares.CheckId)
+	paymentGroup.GET("", payment.GetPendingPaymentsController)
 
-	paymentGroup.GET("", payment.GetPendingPaymentsByUserIdController)
-
-	paymentGroup.POST("", payment.AddPendingPaymentByUserIdController)
+	paymentGroup.POST("", payment.AddPendingPaymentController)
 }
 

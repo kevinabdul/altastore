@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func GetPendingPaymentsByUserIdController(c echo.Context) error {
+func GetPendingPaymentsController(c echo.Context) error {
 	userId , _ := strconv.Atoi(c.Request().Header.Get("userId"))
 	pendingPayments, err := libdb.GetPendingPaymentsByUserId(userId)
 
@@ -27,7 +27,7 @@ func GetPendingPaymentsByUserIdController(c echo.Context) error {
 	}{Status: "success", Data: pendingPayments})
 }
 
-func AddPendingPaymentByUserIdController(c echo.Context) error {
+func AddPendingPaymentController(c echo.Context) error {
 	userId , _ := strconv.Atoi(c.Request().Header.Get("userId"))
 	payment := models.UserPaymentAPI{}
 	c.Bind(&payment)
