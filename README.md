@@ -13,7 +13,7 @@
 | | | | | |
 | | | | | |
 | | | | | |
-POST | /login/users| Login existing user| No | No
+POST | /login | Login existing user| No | No
 | | | | | |
 | | | | | |
 | | | | | |
@@ -30,8 +30,8 @@ DELETE | /carts/:id | Delete Cart By User Id. "id" paramater must be equal with 
 | | | | | |
 | | | | | |
 | | | | | |
-|GET   |  /checkout/:id | Get checkout information by User Id."id" paramater must be equal with "userId" in jwt | Yes | Yes
-|POST  |  /checkout/:id | Add checkout information by User Id."id" paramater must be equal with "userId" in jwt | Yes | Yes
+|GET   |  /checkout | Get checkout information. Return value depends on "userId" claims in jwt | Yes | No
+|POST  |  /checkout | Add checkout information by User Id. Return value depends on "userId" claims in jwt | Yes | No
 | | | | | |
 | | | | | |
 | | | | | |
