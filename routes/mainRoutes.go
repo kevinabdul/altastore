@@ -15,11 +15,13 @@ func New() *echo.Echo {
 
 	registerProductRoutes()
 
-	registerCheckoutRoutes()
-
 	registerLoginRoutes()
 
 	registerCartRoutes()
+
+	registerCheckoutRoutes()
+
+	registerPaymentRoutes()
 	
 	return e
 }

@@ -6,12 +6,12 @@ import(
 )
 
 func registerCheckoutRoutes() {
-	s := e.Group("/checkout")
+	checkoutGroup := e.Group("/checkout")
 
-	s.Use(middlewares.AuthenticateUser)
+	checkoutGroup.Use(middlewares.AuthenticateUser)
 
-	s.GET("", checkout.GetCheckoutByUserIdController)
+	checkoutGroup.GET("", checkout.GetCheckoutByUserIdController)
 
-	s.POST("", checkout.AddCheckoutByUserIdController)
+	checkoutGroup.POST("", checkout.AddCheckoutByUserIdController)
 }
 
