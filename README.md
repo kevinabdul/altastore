@@ -31,7 +31,7 @@ DELETE | /carts/:id | Delete Cart By User Id. "id" paramater must be equal with 
 | | | | | |
 | | | | | |
 |GET   |  /checkout | Get checkout information. Return value depends on "userId" claims in jwt | Yes | No
-|POST  |  /checkout | Add checkout information by User Id. Return value depends on "userId" claims in jwt | Yes | No
+|POST  |  /checkout | Checked out User's Cart based on jwt's userId claims. | Yes | No
 | | | | | |
 | | | | | |
 | | | | | |
