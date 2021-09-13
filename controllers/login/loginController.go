@@ -16,7 +16,10 @@ func LoginUserController(c echo.Context) error {
 	token, err := libdb.LoginUser(loggingUser)
 
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, struct {
+			Status string
+			Message string
+		}{Status: "failed", Message: err.Error()})
 	}
 	
 	return c.JSON(http.StatusOK, struct {

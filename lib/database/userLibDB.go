@@ -3,6 +3,7 @@ package libdb
 import (
 	"altastore/config"
 	"altastore/models"
+	"altastore/util/password"
 )
 
 func GetUsers() ([]models.UserAPI, error) {
@@ -34,6 +35,12 @@ func GetUserById(targetId int) (models.UserAPI, int, error) {
 }
 
 func AddUser(newUser *models.User) (models.UserAPI, error) {
+	hashedPassword, err := password.Hash(newUser.Password)
+	if err != nil {
+		return models.UserAPI{}, err
+	}
+	newUser.Password = hashedPassword
+
 	res := config.Db.Select("name", "email", "password").Create(newUser)
 	if res.Error != nil {
 		return models.UserAPI{}, res.Error
