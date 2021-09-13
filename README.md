@@ -3,7 +3,7 @@
 ## Endpoint
 
 | Method | Endpoint | Description| Authentication | Authorization
-|:-----:|:--------|:----------| :----------:| :----------:|
+|:-----|--------|----------| :----------:| :----------:|
 | GET    |   /users|Get list of all users| Yes | No
 | GET   |   /users/:id| Get User By User Id. "id" paramater must be equal with "userId" in jwt | Yes | Yes
 | POST  |   /users| Register a new user | No | No
