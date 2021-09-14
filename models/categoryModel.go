@@ -12,6 +12,6 @@ type Category struct {
 }
 
 type CategoryAPI struct {
-	CategoryID		uint 		`gorm:"primaryKey"`
-	CategoryName	string		`gorm:"type:varchar(70);not null;unique" json:"category_name" form:"category_name"`
+	CategoryID		uint 		
+	CategoryName	string		`json:"category_name" form:"category_name"`
 }

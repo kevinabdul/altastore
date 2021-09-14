@@ -12,7 +12,7 @@ type PaymentMethod struct {
 
 type PaymentMethodAPI struct {
 	PaymentMethodName 	string				`json:"payment_method_name"`
-	Description     	string 				`gorm:"type:varchar(1000)" json:"description"`
+	Description     	string 				`json:"description"`
 }
 
 type PendingPaymentAPI struct {
@@ -25,6 +25,7 @@ type PendingPaymentAPI struct {
 
 type PaymentDetailAPI struct {
 	InvoiceID			string				`json:"-"`
+	ProductID	 		uint				`json:"product_id"`
 	ProductName 		string				`json:"product_name"`
 	ProductPrice		uint 				`json:"product_price"`
 	Quantity  			uint  				`json:"quantity"`
@@ -43,7 +44,7 @@ type ReceiptAPI struct {
 	InvoiceID			string 				`json:"invoice_id"`
 	Amount    			uint  				`json:"amount"`
 	PaymentMethodName	string 				`json:"payment_method_name"`
-	UpdatedAt 			time.Time 			`json:"payment_date"`
+	CreatedAt 			time.Time 			`json:"payment_date"`
 }
 
 type ReceiptDetailAPI struct {

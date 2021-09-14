@@ -11,7 +11,7 @@ import (
 func GetCartByUserId(userId int) ([]models.CartAPI, error) {
 	var cart []models.CartAPI
 
-	res := config.Db.Table("carts").Select("products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_name = products.product_name").Where(`user_id = ?`, userId).Find(&cart)
+	res := config.Db.Table("carts").Select("products.product_id, products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_id = products.product_id").Where(`user_id = ?`, userId).Find(&cart)
 
 	if res.Error != nil {
 		return []models.CartAPI{}, res.Error
@@ -24,7 +24,7 @@ func UpdateCartByUserId(userCart []models.Cart, userId int)  (int64, error) {
 	var rowsAffected int64
 
 	for _, cartItem := range userCart {
-		if cartItem.Quantity == 0 || cartItem.ProductName == ""{
+		if cartItem.Quantity == 0 || cartItem.ProductID == 0 {
 			continue
 		}
 		
@@ -32,30 +32,31 @@ func UpdateCartByUserId(userCart []models.Cart, userId int)  (int64, error) {
 		
 		cart := models.Cart{}
 		
+		// Can be done better if we use some kind of caching mechanism for product_id. This product_id existence check is for learning purpose
 		productTarget := models.Product{}
-		prodSearchRes := config.Db.Where(`product_name = ?`, cartItem.ProductName).Find(&productTarget)
+		prodSearchRes := config.Db.Where(`product_id = ?`, cartItem.ProductID).Find(&productTarget)
 
 		if prodSearchRes.Error != nil {
 			return prodSearchRes.RowsAffected, prodSearchRes.Error
 		}
 
 		if prodSearchRes.RowsAffected == 0 {
-			return prodSearchRes.RowsAffected, errors.New(fmt.Sprintf("No product named %s found in the product list", cartItem.ProductName))
+			return prodSearchRes.RowsAffected, errors.New(fmt.Sprintf("No product id %s found in the product table", cartItem.ProductID))
 		}
 		
-		cartItemSearchRes := config.Db.Where(`user_id = ? AND product_name = ?`, userId, cartItem.ProductName).Find(&cart)
+		cartItemSearchRes := config.Db.Where(`user_id = ? AND product_id = ?`, userId, cartItem.ProductID).Find(&cart)
 
 		if cartItemSearchRes.Error != nil {
 			return cartItemSearchRes.RowsAffected, cartItemSearchRes.Error
 		} else if cartItemSearchRes.RowsAffected == 0 {
-			insertRes := config.Db.Select("UserID", "ProductName", "Quantity").Create(&cartItem)
+			insertRes := config.Db.Select("UserID", "ProductID", "Quantity").Create(&cartItem)
 
 			if insertRes.Error != nil {
 				return insertRes.RowsAffected, insertRes.Error
 			}
 
 			if insertRes.RowsAffected == 0 {
-				return insertRes.RowsAffected, errors.New(fmt.Sprintf("Failed to add item %s to user's cart", cartItem.ProductName))
+				return insertRes.RowsAffected, errors.New(fmt.Sprintf("Failed to add item %s to user's cart", cartItem.ProductID))
 			}
 
 			rowsAffected++
@@ -67,7 +68,7 @@ func UpdateCartByUserId(userCart []models.Cart, userId int)  (int64, error) {
 			}
 
 			if updateRes.RowsAffected == 0{
-				return updateRes.RowsAffected, errors.New(fmt.Sprintf("Failed to update item %s in user's cart", cartItem.ProductName))
+				return updateRes.RowsAffected, errors.New(fmt.Sprintf("Failed to update item %s in user's cart", cartItem.ProductID))
 			}
 
 			rowsAffected++

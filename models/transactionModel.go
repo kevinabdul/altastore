@@ -16,7 +16,7 @@ type Transaction struct {
 
 type TransactionDetail struct {
 	InvoiceID			string		`gorm:"primaryKey;not null;type:varchar(60)" json:"invoice_id"`
-	ProductName 		string		`gorm:"primaryKey;type:varchar(100)" json:"product_name"`
+	ProductID			uint		`gorm:"primaryKey;type:uint" json:"product_id"`
 	ProductPrice		uint 		`gorm:"type:uint" json:"product_price"`
 	Quantity  			uint  		`gorm:"not null;type:smallint" json:"quantity"`
 	CreatedAt 			time.Time
