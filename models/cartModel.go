@@ -7,9 +7,11 @@ import (
 type Cart struct {
 	UserID			uint 		`gorm:"primaryKey;autoIncrement:false"`
 	ProductID		uint 		`gorm:"primaryKey;not null" json:"product_id"`
-	Quantity		uint 		`gorm:"not null;type:smallint" json:"quantity"`
+	Quantity		uint 		`gorm:"not null;type:int" json:"quantity"`
 	CreatedAt 		time.Time
 	UpdatedAt		time.Time
+	User            User 
+	Product  		Product
 }
 
 type CartAPI struct {

@@ -12,6 +12,7 @@ type Transaction struct {
 	PaymentMethodName	string		`gorm:"type:varchar(25)" json:"payment_method_name"`
 	CreatedAt 			time.Time
 	UpdatedAt			time.Time
+	User 				User  	
 }
 
 type TransactionDetail struct {
@@ -21,6 +22,7 @@ type TransactionDetail struct {
 	Quantity  			uint  		`gorm:"not null;type:smallint" json:"quantity"`
 	CreatedAt 			time.Time
 	UpdatedAt			time.Time
+	Product   			Product
 }
 
 type TransactionAPI struct {
