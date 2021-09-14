@@ -86,7 +86,11 @@ func DeleteUser(targetId int) (int, error) {
 		return 0, nil
 	}
 
+	config.Db.Exec("set foreign_key_checks = 0")
+
 	res = config.Db.Unscoped().Delete(&targetUser)
+
+	config.Db.Exec("set foreign_key_checks = 1")
 
 	if res.Error != nil {
 		return 0, res.Error

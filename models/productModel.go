@@ -10,7 +10,8 @@ type Product struct {
 	CategoryID		uint		`gorm:"type:varchar(70);not null" json:"category" form:"category"`
 	Price 			uint 		`gorm:"type:int unsigned;not null" json:"price" form:"price"`
 	CreatedAt		time.Time 	
-	UpdatedAt		time.Time	
+	UpdatedAt		time.Time
+	Category   		Category	
 }
 
 type ProductAPI struct {
