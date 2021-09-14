@@ -11,7 +11,7 @@ import (
 
 func GetCheckoutByUserId(userId int) (models.CheckoutAPI, error){
 	cart := []models.CartAPI{}
-	cartSearchRes := config.Db.Table("carts").Select("products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_name = products.product_name").Where(`user_id = ?`, userId).Find(&cart)
+	cartSearchRes := config.Db.Table("carts").Select("products.product_id, products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_id = products.product_id").Where(`user_id = ?`, userId).Find(&cart)
 
 	if cartSearchRes.Error != nil {
 		return models.CheckoutAPI{}, cartSearchRes.Error
@@ -40,7 +40,7 @@ func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.T
 	payment.PaymentMethodName = strings.ToLower(payment.PaymentMethodName)
 	carts := []models.CartAPI{}
 
-	findCartRes := config.Db.Table("carts").Select("products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_name = products.product_name").Where(`user_id = ?`, userId).Find(&carts)
+	findCartRes := config.Db.Table("carts").Select("products.product_id, products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_id = products.product_id").Where(`user_id = ?`, userId).Find(&carts)
 
 	if findCartRes.Error != nil {
 		return models.TransactionAPI{}, findCartRes.RowsAffected, findCartRes.Error
@@ -79,7 +79,7 @@ func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.T
 	var total uint
 
 	for _, cartItem := range carts {
-		transactionDetail.ProductName = cartItem.ProductName
+		transactionDetail.ProductID = cartItem.ProductID
 		transactionDetail.ProductPrice = cartItem.Price
 		transactionDetail.Quantity = cartItem.Quantity
 		total += uint(cartItem.Price) * uint(cartItem.Quantity)

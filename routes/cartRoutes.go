@@ -6,11 +6,9 @@ import(
 )
 
 func registerCartRoutes() {
-	cartGroup := e.Group("/carts/:id")
+	cartGroup := e.Group("/carts")
 
 	cartGroup.Use(middlewares.AuthenticateUser)
-
-	cartGroup.Use(middlewares.CheckId)
 	
 	cartGroup.GET("", cart.GetCartByUserIdController)
 
