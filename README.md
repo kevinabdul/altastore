@@ -23,9 +23,9 @@ POST | /login | Login existing user| No | No
 | | | | | |
 | | | | | |
 | | | | | |
-GET    | /carts/:id | Get Cart By User Id. "id" paramater must be equal with "userId" in jwt | Yes | Yes
-PUT    | /carts/:id | Update Cart By User Id. "id" paramater must be equal with "userId" in jwt | Yes | Yes
-DELETE | /carts/:id | Delete Cart By User Id. "id" paramater must be equal with "userId" in jwt | Yes | Yes
+GET    | /carts | Get User's Cart. Target cart based on "userId" claims in jwt | Yes | No
+PUT    | /carts | Update User's Cart . Target cart based on "userId" claims in jwt | Yes | No
+DELETE | /carts | Delete User's Cart . Target cart based on "userId" claims in jwt | Yes | No
 | | | | | |
 | | | | | |
 | | | | | |
