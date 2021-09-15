@@ -1,14 +1,14 @@
 package config
 
 import (
-	"fmt"
 	"altastore/models"
-	"os"
+	"fmt"
 	"log"
-	
-	"gorm.io/gorm"
-	"gorm.io/driver/mysql"
+	"os"
+
 	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var (
@@ -39,4 +39,29 @@ func InitDb() {
 	Db.AutoMigrate(&models.Cart{})
 	Db.AutoMigrate(&models.Product{})
 	Db.AutoMigrate(&models.Category{})
+	Db.AutoMigrate(&models.Transaction{})
+	Db.AutoMigrate(&models.TransactionDetail{})
+	Db.AutoMigrate(&models.PaymentMethod{})
+}
+
+// this config for API testing purpose
+func InitDBTest() {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		os.Getenv("DB_USERNAME_TEST"),
+		os.Getenv("DB_PASSWORD_TEST"),
+		os.Getenv("DB_HOST_TEST"),
+		os.Getenv("DB_PORT_TEST"),
+		os.Getenv("DB_NAME_TEST"))
+
+	var err error
+	Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	InitMigrateTest()
+}
+
+func InitMigrateTest() {
+	Db.Migrator().DropTable(&models.User{})
+	Db.AutoMigrate(&models.User{})
 }

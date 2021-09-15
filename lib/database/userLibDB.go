@@ -1,9 +1,9 @@
-package services
+package libdb
 
 import (
 	"altastore/config"
 	"altastore/models"
-	"altastore/util/jwt"
+	"altastore/util/password"
 )
 
 func GetUsers() ([]models.UserAPI, error) {
@@ -35,6 +35,12 @@ func GetUserById(targetId int) (models.UserAPI, int, error) {
 }
 
 func AddUser(newUser *models.User) (models.UserAPI, error) {
+	hashedPassword, err := password.Hash(newUser.Password)
+	if err != nil {
+		return models.UserAPI{}, err
+	}
+	newUser.Password = hashedPassword
+
 	res := config.Db.Select("name", "email", "password").Create(newUser)
 	if res.Error != nil {
 		return models.UserAPI{}, res.Error
@@ -80,7 +86,11 @@ func DeleteUser(targetId int) (int, error) {
 		return 0, nil
 	}
 
+	config.Db.Exec("set foreign_key_checks = 0")
+
 	res = config.Db.Unscoped().Delete(&targetUser)
+
+	config.Db.Exec("set foreign_key_checks = 1")
 
 	if res.Error != nil {
 		return 0, res.Error
@@ -91,21 +101,4 @@ func DeleteUser(targetId int) (int, error) {
 	}
 
 	return 1, nil
-}
-
-func LoginUser(user *models.User) (string ,error) {
-	res := config.Db.Where("email = ? AND password = ?", user.Email, user.Password).First(user)
-
-	if res.Error != nil {
-		return "", res.Error
-	}
-
-	token, err := implementjwt.CreateToken(int(user.ID))
-
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
-
 }

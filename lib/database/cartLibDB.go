@@ -1,6 +1,10 @@
-package services
+package libdb
 
 import (
+	"errors"
+	"fmt"
+	"strings"
+
 	"altastore/config"
 	"altastore/models"
 )
@@ -8,7 +12,7 @@ import (
 func GetCartByUserId(userId int) ([]models.CartAPI, error) {
 	var cart []models.CartAPI
 
-	res := config.Db.Model(&models.Cart{}).Where(`user_id = ?`, userId).Find(&cart)
+	res := config.Db.Table("carts").Select("products.product_id, products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_id = products.product_id").Where(`user_id = ?`, userId).Find(&cart)
 
 	if res.Error != nil {
 		return []models.CartAPI{}, res.Error
@@ -17,51 +21,52 @@ func GetCartByUserId(userId int) ([]models.CartAPI, error) {
 	return cart, nil
 }
 
-func UpdateCartByUserId(userCart []models.Cart, userId int)  (int64, error) {
-	var rowsAffected int64
-
+// This function assumes the userId is still exist. That check should be handled by another auth functionality, not by this function.
+func UpdateCartByUserId(userCart []models.Cart, userId int)  error {
 	for _, cartItem := range userCart {
-		if cartItem.Quantity == 0 || cartItem.ProductName == ""{
+		// Request body binding done in the controller should already "convert" any integer less than zero to zero
+		if cartItem.Quantity == 0 || cartItem.ProductID == 0 {
 			continue
 		}
-		
-		cartItem.UserID = uint(userId)
-		
-		cart := models.Cart{}
-		
-		productTarget := models.Product{}
-		prodSearchRes := config.Db.Where(`product_name = ?`, cartItem.ProductName).Find(&productTarget)
 
-		if prodSearchRes.Error != nil {
-			return prodSearchRes.RowsAffected, prodSearchRes.Error
-		}
+		targetCart := models.Cart{}
 
-		if prodSearchRes.RowsAffected == 0 {
-			continue
-		}
-		
-		cartItemSearchRes := config.Db.Where(`user_id = ? AND product_name = ?`, userId, cartItem.ProductName).Find(&cart)
+		/* Just found about this awesome and convenient method the night before presentation */
+		res := config.Db.Where(models.Cart{UserID: uint(userId), ProductID: cartItem.ProductID}).Assign(models.Cart{Quantity: cartItem.Quantity}).FirstOrCreate(&targetCart)
 
-		if cartItemSearchRes.Error != nil {
-			return cartItemSearchRes.RowsAffected, cartItemSearchRes.Error
-		} else if cartItemSearchRes.RowsAffected == 0 {
-			insertRes := config.Db.Select("UserID", "ProductName", "Quantity").Create(&cartItem)
-
-			if insertRes.Error != nil || insertRes.RowsAffected == 0 {
-				return insertRes.RowsAffected, insertRes.Error
+		if res.Error != nil {
+			// Error 1452 means we try to change a child table with invalid parent's table primary key
+			if strings.HasPrefix(res.Error.Error(), "Error 1452") {
+				return errors.New(fmt.Sprintf("No product id %v found in the product table", cartItem.ProductID))
 			}
-
-			rowsAffected++
-		} else if cartItemSearchRes.RowsAffected != 0 && cart.Quantity != cartItem.Quantity{
-			updateRes := config.Db.Model(&cart).Select("quantity").Updates(cartItem)
-			
-			if updateRes.Error != nil || updateRes.RowsAffected == 0{
-				return updateRes.RowsAffected, updateRes.Error
-			}
-
-			rowsAffected++
+			return res.Error
 		}
 	}
 
-	return rowsAffected, nil
+	return nil
+}
+
+func DeleteCartByUserId(itemIds []int, userId int) (int, error) {
+	if len(itemIds) == 0 {
+		return 0, errors.New("No item found in delete list. Please specify before deleting")
+	}
+
+	deletedCart := models.Cart{}
+	deletedItem := 0
+
+	for _, itemId := range itemIds {
+		deleteRes := config.Db.Table("carts").Where("user_id = ? and product_id = ?", userId, itemId).Unscoped().Delete(&deletedCart)
+		
+		if deleteRes.Error != nil {
+			return 0, deleteRes.Error
+		}
+
+		if deleteRes.RowsAffected == 0 {
+			return 0, errors.New(fmt.Sprintf("No product with id %v is found in user's cart.", itemId))
+		}
+
+		deletedItem++
+	}
+
+	return deletedItem, nil
 }
