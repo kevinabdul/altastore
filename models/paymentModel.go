@@ -11,7 +11,7 @@ type PaymentMethod struct {
 }
 
 type PaymentMethodAPI struct {
-	PaymentMethodName 	string				`json:"payment_method_name"`
+	PaymentMethodID 	uint				`json:"payment_method_id"`
 	Description     	string 				`json:"description"`
 }
 
