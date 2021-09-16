@@ -6,5 +6,4 @@ type CheckoutAPI struct {
 	Total				uint 		`json:"total"`
 	// Shipment			string		`gorm:"type:enum('jne', 'pos', 'tiki');default:'jne'" json:"shipment"`
 	PaymentOptions		[]string	`json:"payment_options"`
-	User     			User
 }

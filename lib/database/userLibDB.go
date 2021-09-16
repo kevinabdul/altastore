@@ -46,7 +46,7 @@ func AddUser(newUser *models.User) (models.UserAPI, error) {
 		return models.UserAPI{}, res.Error
 	}
 	newUserAPI := models.UserAPI{}
-	newUserAPI.ID = newUser.ID
+	newUserAPI.UserID = newUser.UserID
 	newUserAPI.Name = newUser.Name
 	newUserAPI.Email = newUser.Email
 	
@@ -67,7 +67,7 @@ func EditUser(newData models.User, targetId int) (models.UserAPI ,int, error) {
 	}
 
 	edittedUser := models.UserAPI{}
-	edittedUser.ID = targetUser.ID
+	edittedUser.UserID = targetUser.UserID
 	edittedUser.Name = targetUser.Name
 	edittedUser.Email = targetUser.Email
 
