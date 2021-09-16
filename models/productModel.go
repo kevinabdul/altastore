@@ -11,7 +11,7 @@ type Product struct {
 	Price 			uint 		`gorm:"type:int unsigned;not null" json:"price" form:"price"`
 	CreatedAt		time.Time 	
 	UpdatedAt		time.Time
-	Category   		Category	
+	Category   		Category	`gorm:"foreignKey:CategoryID"`
 }
 
 type ProductAPI struct {

@@ -27,7 +27,7 @@ func LoginUser(user *models.User) (string ,error) {
 		return "", err
 	}
 
-	token, err := implementjwt.CreateToken(int(targetUser.ID))
+	token, err := implementjwt.CreateToken(int(targetUser.UserID))
 
 	if err != nil {
 		return "", err

@@ -14,7 +14,7 @@ func GetPendingPaymentsByUserId(userId int) ([]models.PendingPaymentAPI, error){
 
 	paymentDetails := []models.PaymentDetailAPI{}
 
-	pendingPaymentSearchRes := config.Db.Table("transactions").Select("transactions.invoice_id, transaction_details.product_id, products.product_name, transaction_details.product_price, transaction_details.quantity, payment_methods.payment_method_name, payment_methods.description").Joins("left join transaction_details on transactions.invoice_id = transaction_details.invoice_id").Joins("left join payment_methods on transactions.payment_method_name = payment_methods.payment_method_name").Joins("left join products on products.product_id = transaction_details.product_id").Where("user_id = ? and status = ?", userId, "pending payment").Find(&paymentDetails)
+	pendingPaymentSearchRes := config.Db.Table("transactions").Select("transactions.invoice_id, transaction_details.product_id, products.product_name, transaction_details.product_price, transaction_details.quantity, payment_methods.payment_method_name, payment_methods.description").Joins("left join transaction_details on transactions.invoice_id = transaction_details.invoice_id").Joins("left join payment_methods on transactions.payment_method_id = payment_methods.payment_method_id").Joins("left join products on products.product_id = transaction_details.product_id").Where("user_id = ? and status = ?", userId, "pending payment").Find(&paymentDetails)
 
 	if pendingPaymentSearchRes.Error != nil {
 		return []models.PendingPaymentAPI{}, pendingPaymentSearchRes.Error
@@ -58,7 +58,7 @@ func AddPendingPaymentByUserId(payment models.UserPaymentAPI, userId int) (model
 	payment.PaymentMethodName = strings.ToLower(payment.PaymentMethodName)
 	transactionTarget := []models.ReceiptDetailAPI{}
 
-	findPayment := config.Db.Table("transactions").Select("transactions.user_id, transactions.invoice_id, transactions.status, transaction_details.product_id, transaction_details.product_price, transaction_details.quantity, payment_methods.payment_method_name, payment_methods.description").Joins("left join transaction_details on transactions.invoice_id = transaction_details.invoice_id").Joins("left join payment_methods on transactions.payment_method_name = payment_methods.payment_method_name").Where("transactions.user_id = ? and transactions.invoice_id = ?", userId, payment.InvoiceID).Find(&transactionTarget)
+	findPayment := config.Db.Table("transactions").Select("transactions.user_id, transactions.invoice_id, transactions.status, transaction_details.product_id, transaction_details.product_price, transaction_details.quantity, payment_methods.payment_method_name, payment_methods.description").Joins("left join transaction_details on transactions.invoice_id = transaction_details.invoice_id").Joins("left join payment_methods on transactions.payment_method_id = payment_methods.payment_method_id").Where("transactions.user_id = ? and transactions.invoice_id = ?", userId, payment.InvoiceID).Find(&transactionTarget)
 
 	if findPayment.Error != nil {
 		return models.ReceiptAPI{}, findPayment.Error

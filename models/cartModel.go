@@ -10,8 +10,8 @@ type Cart struct {
 	Quantity		uint 		`gorm:"not null;type:int" json:"quantity"`
 	CreatedAt 		time.Time
 	UpdatedAt		time.Time
-	User            User 
-	Product  		Product
+	User            User 		`gorm:"foreignKey:UserID"`
+	Product  		Product  	`gorm:"foreignKey:ProductID"`
 }
 
 type CartAPI struct {

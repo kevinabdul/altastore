@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"gorm.io/gorm"
 
 	"altastore/config"
 	"altastore/models"
@@ -23,26 +24,33 @@ func GetCartByUserId(userId int) ([]models.CartAPI, error) {
 
 // This function assumes the userId is still exist. That check should be handled by another auth functionality, not by this function.
 func UpdateCartByUserId(userCart []models.Cart, userId int)  error {
-	for _, cartItem := range userCart {
-		// Request body binding done in the controller should already "convert" any integer less than zero to zero
-		if cartItem.Quantity == 0 || cartItem.ProductID == 0 {
-			continue
-		}
-
-		targetCart := models.Cart{}
-
-		/* Just found about this awesome and convenient method the night before presentation */
-		res := config.Db.Where(models.Cart{UserID: uint(userId), ProductID: cartItem.ProductID}).Assign(models.Cart{Quantity: cartItem.Quantity}).FirstOrCreate(&targetCart)
-
-		if res.Error != nil {
-			// Error 1452 means we try to change a child table with invalid parent's table primary key
-			if strings.HasPrefix(res.Error.Error(), "Error 1452") {
-				return errors.New(fmt.Sprintf("No product id %v found in the product table", cartItem.ProductID))
+	err := config.Db.Transaction(func(tx *gorm.DB) error {
+		for _, cartItem := range userCart {
+			// Request body binding done in the controller should already "convert" any integer less than zero to zero
+			if cartItem.Quantity == 0 || cartItem.ProductID == 0 {
+				continue
 			}
-			return res.Error
-		}
-	}
 
+			targetCart := models.Cart{}
+
+			/* Just found about this awesome and convenient method the night before presentation */
+			res := tx.Where(models.Cart{UserID: uint(userId), ProductID: cartItem.ProductID}).Assign(models.Cart{Quantity: cartItem.Quantity}).FirstOrCreate(&targetCart)
+
+			if res.Error != nil {
+				// Error 1452 means we try to change a child table with invalid parent's table primary key
+				if strings.HasPrefix(res.Error.Error(), "Error 1452") {
+					return errors.New(fmt.Sprintf("No product id %v found in the product table", cartItem.ProductID))
+				}
+
+				return res.Error
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -54,19 +62,25 @@ func DeleteCartByUserId(itemIds []int, userId int) (int, error) {
 	deletedCart := models.Cart{}
 	deletedItem := 0
 
-	for _, itemId := range itemIds {
-		deleteRes := config.Db.Table("carts").Where("user_id = ? and product_id = ?", userId, itemId).Unscoped().Delete(&deletedCart)
-		
-		if deleteRes.Error != nil {
-			return 0, deleteRes.Error
-		}
+	err := config.Db.Transaction(func(tx *gorm.DB) error {
+		for _, itemId := range itemIds {
+			deleteRes := tx.Table("carts").Where("user_id = ? and product_id = ?", userId, itemId).Unscoped().Delete(&deletedCart)
+			
+			if deleteRes.Error != nil {
+				return deleteRes.Error
+			}
 
-		if deleteRes.RowsAffected == 0 {
-			return 0, errors.New(fmt.Sprintf("No product with id %v is found in user's cart.", itemId))
-		}
+			if deleteRes.RowsAffected == 0 {
+				return errors.New(fmt.Sprintf("No product with id %v is found in user's cart.", itemId))
+			}
 
-		deletedItem++
+			deletedItem++
+		}
+		return nil
+	})
+
+	if err != nil {
+		return deletedItem, err
 	}
-
 	return deletedItem, nil
 }
