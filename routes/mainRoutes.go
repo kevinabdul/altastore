@@ -22,6 +22,8 @@ func New() *echo.Echo {
 	registerCheckoutRoutes()
 
 	registerPaymentRoutes()
+
+	registerAdminRoutes()
 	
 	return e
 }
