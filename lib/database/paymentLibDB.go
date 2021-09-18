@@ -5,7 +5,7 @@ import (
 	"altastore/models"
 	"errors"
 	"fmt"
-	"strings"
+	//"strings"
 	"strconv"
 )
 
@@ -14,7 +14,7 @@ func GetPendingPaymentsByUserId(userId int) ([]models.PendingPaymentAPI, error){
 
 	paymentDetails := []models.PaymentDetailAPI{}
 
-	pendingPaymentSearchRes := config.Db.Table("transactions").Select("transactions.invoice_id, transaction_details.product_id, products.product_name, transaction_details.product_price, transaction_details.quantity, payment_methods.payment_method_name, payment_methods.description").Joins("left join transaction_details on transactions.invoice_id = transaction_details.invoice_id").Joins("left join payment_methods on transactions.payment_method_id = payment_methods.payment_method_id").Joins("left join products on products.product_id = transaction_details.product_id").Where("user_id = ? and status = ?", userId, "pending payment").Find(&paymentDetails)
+	pendingPaymentSearchRes := config.Db.Table("transactions").Select("transactions.invoice_id, transaction_details.product_id, products.product_name, transaction_details.product_price, transaction_details.quantity, transactions.payment_method_id, payment_methods.description").Joins("left join transaction_details on transactions.invoice_id = transaction_details.invoice_id").Joins("left join payment_methods on transactions.payment_method_id = payment_methods.payment_method_id").Joins("left join products on products.product_id = transaction_details.product_id").Where("user_id = ? and status = ?", userId, "pending payment").Find(&paymentDetails)
 
 	if pendingPaymentSearchRes.Error != nil {
 		return []models.PendingPaymentAPI{}, pendingPaymentSearchRes.Error
@@ -39,7 +39,7 @@ func GetPendingPaymentsByUserId(userId int) ([]models.PendingPaymentAPI, error){
 	for id, invoice := range invoiceMap {
 		result := models.PendingPaymentAPI{}
 		result.InvoiceID = id
-		result.PaymentMethodName = invoice["detail"][0].PaymentMethodName
+		result.PaymentMethodID = invoice["detail"][0].PaymentMethodID
 		result.Description = invoice["detail"][0].Description
 		result.Detail = invoice["detail"]
 
@@ -55,10 +55,9 @@ func GetPendingPaymentsByUserId(userId int) ([]models.PendingPaymentAPI, error){
 }
 
 func AddPendingPaymentByUserId(payment models.UserPaymentAPI, userId int) (models.ReceiptAPI, error) {
-	payment.PaymentMethodName = strings.ToLower(payment.PaymentMethodName)
 	transactionTarget := []models.ReceiptDetailAPI{}
 
-	findPayment := config.Db.Table("transactions").Select("transactions.user_id, transactions.invoice_id, transactions.status, transaction_details.product_id, transaction_details.product_price, transaction_details.quantity, payment_methods.payment_method_name, payment_methods.description").Joins("left join transaction_details on transactions.invoice_id = transaction_details.invoice_id").Joins("left join payment_methods on transactions.payment_method_id = payment_methods.payment_method_id").Where("transactions.user_id = ? and transactions.invoice_id = ?", userId, payment.InvoiceID).Find(&transactionTarget)
+	findPayment := config.Db.Table("transactions").Select("transactions.user_id, transactions.invoice_id, transactions.status, transaction_details.product_id, transaction_details.product_price, transaction_details.quantity, transactions.payment_method_id, payment_methods.payment_method_name, payment_methods.description").Joins("left join transaction_details on transactions.invoice_id = transaction_details.invoice_id").Joins("left join payment_methods on transactions.payment_method_id = payment_methods.payment_method_id").Where("transactions.user_id = ? and transactions.invoice_id = ?", userId, payment.InvoiceID).Find(&transactionTarget)
 
 	if findPayment.Error != nil {
 		return models.ReceiptAPI{}, findPayment.Error
@@ -72,8 +71,8 @@ func AddPendingPaymentByUserId(payment models.UserPaymentAPI, userId int) (model
 		return models.ReceiptAPI{}, errors.New(fmt.Sprintf("Specified invoice id: %v has been %v", payment.InvoiceID ,transactionTarget[0].Status))	
 	}
 
-	if payment.PaymentMethodName != transactionTarget[0].PaymentMethodName {
-		return models.ReceiptAPI{}, errors.New(fmt.Sprintf("Specified payment method doesnt match. Please pay using: %v", transactionTarget[0].PaymentMethodName))
+	if payment.PaymentMethodID != transactionTarget[0].PaymentMethodID {
+		return models.ReceiptAPI{}, errors.New(fmt.Sprintf("Specified payment method doesnt match. Please pay using payment_method_id: %v", transactionTarget[0].PaymentMethodID))
 	}
 
 	var total uint
@@ -103,7 +102,7 @@ func AddPendingPaymentByUserId(payment models.UserPaymentAPI, userId int) (model
 	receipt.UserID = strconv.Itoa(userId)
 	receipt.InvoiceID = payment.InvoiceID
 	receipt.Amount = payment.Amount
-	receipt.PaymentMethodName = payment.PaymentMethodName
+	receipt.PaymentMethodID = payment.PaymentMethodID
 	receipt.CreatedAt = newTransaction.UpdatedAt
 
 	return receipt, nil
