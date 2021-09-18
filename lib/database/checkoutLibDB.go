@@ -38,7 +38,6 @@ func GetCheckoutByUserId(userId int) (models.CheckoutAPI, error){
 }
 
 func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.TransactionAPI, int64, error) {
-	payment.PaymentMethodID = payment.PaymentMethodID
 	carts := []models.CartAPI{}
 
 	findCartRes := config.Db.Table("carts").Select("products.product_id, products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_id = products.product_id").Where(`user_id = ?`, userId).Find(&carts)

@@ -55,15 +55,15 @@ func GetPendingPaymentsByUserId(userId int) ([]models.PendingPaymentAPI, error){
 }
 
 func AddPendingPaymentByUserId(payment models.UserPaymentAPI, userId int) (models.ReceiptAPI, error) {
-	transactionTarget := []models.ReceiptDetailAPI{}
+	transactionTarget := []models.TransactionDetailAPI{}
 
-	findPayment := config.Db.Table("transactions").Select("transactions.user_id, transactions.invoice_id, transactions.status, transaction_details.product_id, transaction_details.product_price, transaction_details.quantity, transactions.payment_method_id, payment_methods.payment_method_name, payment_methods.description").Joins("left join transaction_details on transactions.invoice_id = transaction_details.invoice_id").Joins("left join payment_methods on transactions.payment_method_id = payment_methods.payment_method_id").Where("transactions.user_id = ? and transactions.invoice_id = ?", userId, payment.InvoiceID).Find(&transactionTarget)
+	findTransaction := config.Db.Table("transactions").Select("transactions.user_id, transactions.invoice_id, transactions.status, transaction_details.product_id, transaction_details.product_price, transaction_details.quantity, transactions.payment_method_id, payment_methods.payment_method_name, payment_methods.description").Joins("left join transaction_details on transactions.invoice_id = transaction_details.invoice_id").Joins("left join payment_methods on transactions.payment_method_id = payment_methods.payment_method_id").Where("transactions.user_id = ? and transactions.invoice_id = ?", userId, payment.InvoiceID).Find(&transactionTarget)
 
-	if findPayment.Error != nil {
-		return models.ReceiptAPI{}, findPayment.Error
+	if findTransaction.Error != nil {
+		return models.ReceiptAPI{}, findTransaction.Error
 	}
 
-	if findPayment.RowsAffected == 0 {
+	if findTransaction.RowsAffected == 0 {
 		return models.ReceiptAPI{}, errors.New("No invoice_id found")
 	}
 
