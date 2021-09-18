@@ -27,9 +27,26 @@ type TransactionDetail struct {
 	Product   			Product  	`gorm:"foreignKey:ProductID"`
 }
 
+// Response struct used in case of a succesful checkout in post checkout endpoint
+// Succesful checkout means we are able to delete data from carts table, creating new data in transactions table,
+// and moving the deleted data into transaction_details table. Any failure in those step will fail whole transaction
 type TransactionAPI struct {
 	InvoiceID			string		`json:"invoice_id"`
 	Total 				uint 		`json:"total"`
 	PaymentMethodID 	uint		`json:"payment_method_id"`
 	Description     	string 		`json:"description"` 		
+}
+
+// Commonly used when user try to do a payment. 
+// AddPaymentByUserId will try to find corresponding transaction in a database based on UserId and information provided in UserPaymentAPI struct.
+// This struct will be used as a placeholder of above query result. 
+type TransactionDetailAPI struct {
+	UserID				string 				`json:"user_id"`
+	InvoiceID			string				`json:"invoice_id"`
+	Status   			string  			`json:"status"`
+	ProductName 		string				`json:"product_name"`
+	ProductPrice		uint 				`json:"product_price"`
+	Quantity  			uint  				`json:"quantity"`
+	PaymentMethodID 	uint  				`json:"payment_method_id"`
+	Description   		string 				`json:"description"` 
 }
