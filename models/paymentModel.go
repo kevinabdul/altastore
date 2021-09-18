@@ -18,7 +18,7 @@ type PaymentMethodAPI struct {
 type PendingPaymentAPI struct {
 	InvoiceID			string				`json:"invoice_id"`
 	Total 				uint 				`json:"total"`
-	PaymentMethodName 	string  			`json:"payment_method_name"`
+	PaymentMethodID 	uint  				`json:"payment_method_id"`
 	Description   		string 				`json:"payment_method_description"` 
 	Detail  			[]PaymentDetailAPI	`json:"detail"`
 }
@@ -29,21 +29,21 @@ type PaymentDetailAPI struct {
 	ProductName 		string				`json:"product_name"`
 	ProductPrice		uint 				`json:"product_price"`
 	Quantity  			uint  				`json:"quantity"`
-	PaymentMethodName 	string  			`json:"-"`
+	PaymentMethodID 	uint  				`json:"-"`
 	Description   		string 				`json:"-"` 
 }
 
 type UserPaymentAPI struct {
 	InvoiceID			string 				`json:"invoice_id"`
 	Amount    			uint  				`json:"amount"`
-	PaymentMethodName	string 				`json:"payment_method_name"`
+	PaymentMethodID		uint 				`json:"payment_method_id"`
 }
 
 type ReceiptAPI struct {
 	UserID				string 				`json:"user_id"`
 	InvoiceID			string 				`json:"invoice_id"`
 	Amount    			uint  				`json:"amount"`
-	PaymentMethodName	string 				`json:"payment_method_name"`
+	PaymentMethodID		uint 				`json:"payment_method_id"`
 	CreatedAt 			time.Time 			`json:"payment_date"`
 }
 
@@ -54,6 +54,6 @@ type ReceiptDetailAPI struct {
 	ProductName 		string				`json:"product_name"`
 	ProductPrice		uint 				`json:"product_price"`
 	Quantity  			uint  				`json:"quantity"`
-	PaymentMethodName 	string  			`json:"payment_method_name"`
+	PaymentMethodID 	uint  				`json:"payment_method_id"`
 	Description   		string 				`json:"description"` 
 }

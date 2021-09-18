@@ -42,6 +42,7 @@ func InitDb() {
 	Db.AutoMigrate(&models.Transaction{})
 	Db.AutoMigrate(&models.TransactionDetail{})
 	Db.AutoMigrate(&models.PaymentMethod{})
+	Db.AutoMigrate(&models.Admin{})
 }
 
 // this config for API testing purpose
