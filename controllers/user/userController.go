@@ -17,7 +17,11 @@ func GetUsersController(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, users)
+	return c.JSON(http.StatusOK, struct {
+		Status 	string
+		Message string
+		Users 	[]models.UserAPI
+	}{Status: "success", Message: "Users are retrieved succesfully!", Users: users})
 }
 
 func GetUserByIdController(c echo.Context) error {
@@ -33,9 +37,15 @@ func GetUserByIdController(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, struct {
 			Status  string
 			Message string
-		}{Status: "Failed", Message: "Wrong User Id"})
+			Users  	models.UserAPI
+		}{Status: "Failed", Message: "Wrong User Id", Users: models.UserAPI{}})
 	}
-	return c.JSON(http.StatusOK, targetUser)
+	
+	return c.JSON(http.StatusOK, struct {
+		Status 	string
+		Message string
+		User 	models.UserAPI
+	}{Status: "success", Message: "User is retrieved succesfully!", User: targetUser})
 }
 
 func AddUserController(c echo.Context) error {

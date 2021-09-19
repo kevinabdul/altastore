@@ -1,0 +1,24 @@
+mode: set
+altastore/controllers/user/userController.go:13.47,16.16 2 1
+altastore/controllers/user/userController.go:20.2,24.82 1 1
+altastore/controllers/user/userController.go:16.16,18.3 1 0
+altastore/controllers/user/userController.go:27.50,32.16 3 0
+altastore/controllers/user/userController.go:36.2,36.23 1 0
+altastore/controllers/user/userController.go:44.2,48.84 1 0
+altastore/controllers/user/userController.go:32.16,34.3 1 0
+altastore/controllers/user/userController.go:36.23,42.3 1 0
+altastore/controllers/user/userController.go:51.46,55.51 3 1
+altastore/controllers/user/userController.go:62.2,64.16 2 1
+altastore/controllers/user/userController.go:68.2,72.69 1 1
+altastore/controllers/user/userController.go:55.51,60.3 1 0
+altastore/controllers/user/userController.go:64.16,66.3 1 0
+altastore/controllers/user/userController.go:76.47,84.16 5 0
+altastore/controllers/user/userController.go:88.2,88.23 1 0
+altastore/controllers/user/userController.go:95.2,99.77 1 0
+altastore/controllers/user/userController.go:84.16,86.3 1 0
+altastore/controllers/user/userController.go:88.23,93.3 1 0
+altastore/controllers/user/userController.go:102.49,107.16 3 0
+altastore/controllers/user/userController.go:111.2,111.23 1 0
+altastore/controllers/user/userController.go:119.2,122.58 1 0
+altastore/controllers/user/userController.go:107.16,109.3 1 0
+altastore/controllers/user/userController.go:111.23,116.3 1 0
