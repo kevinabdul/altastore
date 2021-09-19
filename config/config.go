@@ -47,11 +47,17 @@ func InitDb() {
 
 // this config for API testing purpose
 func InitDBTest() {
+	// Since we invoke this from inside of altastore/controller/controllerxxx,
+	// we need to cd to parent directory twice
+	if err := godotenv.Load("./../../.env"); err != nil {
+		log.Fatal(fmt.Sprintf("Error loading .env file. Got this error: %v", err))
+	}
+
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		os.Getenv("DB_USERNAME_TEST"),
-		os.Getenv("DB_PASSWORD_TEST"),
-		os.Getenv("DB_HOST_TEST"),
-		os.Getenv("DB_PORT_TEST"),
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
 		os.Getenv("DB_NAME_TEST"))
 
 	var err error
