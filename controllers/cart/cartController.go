@@ -23,8 +23,9 @@ func GetCartByUserIdController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, struct {
 		Status 	string
-		Cart 	[]models.CartAPI
-	}{Status: "success", Cart: cartTarget})
+		Message string
+		Carts 	[]models.CartAPI
+	}{Status: "success", Message: "Cart is retrieved succesfully" , Carts: cartTarget})
 }
 
 

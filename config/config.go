@@ -69,6 +69,9 @@ func InitDBTest() {
 }
 
 func InitMigrateTest() {
-	Db.Migrator().DropTable(&models.User{},&models.Category{}, &models.Product{})
-	Db.AutoMigrate(&models.User{}, &models.Category{}, &models.Product{})
+	Db.Migrator().DropTable(&models.User{},&models.Category{}, &models.Product{}, &models.Cart{})
+	Db.AutoMigrate(&models.User{}, &models.Category{}, &models.Product{}, &models.Cart{})
+
+	// Db.Migrator().DropTable(&models.User{}, &models.Cart{})
+	// Db.AutoMigrate(&models.User{}, &models.Cart{})
 }
