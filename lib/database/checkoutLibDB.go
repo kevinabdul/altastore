@@ -37,17 +37,17 @@ func GetCheckoutByUserId(userId int) (models.CheckoutAPI, error){
 	return checkout, nil
 }
 
-func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.TransactionAPI, int64, error) {
+func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.TransactionAPI, error) {
 	carts := []models.CartAPI{}
 
 	findCartRes := config.Db.Table("carts").Select("products.product_id, products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_id = products.product_id").Where(`user_id = ?`, userId).Find(&carts)
 
 	if findCartRes.Error != nil {
-		return models.TransactionAPI{}, findCartRes.RowsAffected, findCartRes.Error
+		return models.TransactionAPI{}, findCartRes.Error
 	}
 
 	if findCartRes.RowsAffected == 0 {
-		return models.TransactionAPI{}, findCartRes.RowsAffected, errors.New("No products found in the cart. Add products first before checking out")
+		return models.TransactionAPI{}, errors.New("No products found in the cart. Add products first before checking out")
 	}
 
 	/* transactionAPI, transactionCreation, transaction, and transactionDetail here means:
@@ -135,8 +135,11 @@ func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.T
 	})
 
 	if err != nil {
-		return transactionAPI, transactionCreation.RowsAffected, err
+		if transactionCreation.RowsAffected == 0 {
+			return transactionAPI, errors.New("Failed to create invoice")
+		}
+		return transactionAPI, err
 	}
 
-	return transactionAPI, transactionCreation.RowsAffected, nil
+	return transactionAPI, nil
 }

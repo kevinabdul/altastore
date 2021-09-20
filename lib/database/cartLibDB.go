@@ -19,6 +19,10 @@ func GetCartByUserId(userId int) ([]models.CartAPI, error) {
 		return []models.CartAPI{}, res.Error
 	}
 
+	if res.RowsAffected == 0 {
+		return []models.CartAPI{}, errors.New("No product found in the cart")
+	}
+
 	return cart, nil
 }
 
