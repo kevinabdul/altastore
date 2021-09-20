@@ -24,6 +24,9 @@ altastore/controllers/payment/paymentController.go:17.16,22.3 1 0
 altastore/controllers/payment/paymentController.go:30.56,36.16 5 0
 altastore/controllers/payment/paymentController.go:50.2,53.43 1 0
 altastore/controllers/payment/paymentController.go:36.16,41.3 1 0
+altastore/controllers/product/productController.go:12.50,17.16 3 1
+altastore/controllers/product/productController.go:24.2,28.95 1 1
+altastore/controllers/product/productController.go:17.16,22.3 1 1
 altastore/controllers/user/userController.go:14.47,19.16 3 1
 altastore/controllers/user/userController.go:26.2,30.82 1 1
 altastore/controllers/user/userController.go:19.16,24.3 1 1
@@ -42,6 +45,3 @@ altastore/controllers/user/userController.go:100.16,105.3 1 1
 altastore/controllers/user/userController.go:113.48,119.16 4 1
 altastore/controllers/user/userController.go:126.2,130.68 1 1
 altastore/controllers/user/userController.go:119.16,124.3 1 1
-altastore/controllers/product/productController.go:12.50,17.16 3 1
-altastore/controllers/product/productController.go:24.2,28.95 1 1
-altastore/controllers/product/productController.go:17.16,22.3 1 1
