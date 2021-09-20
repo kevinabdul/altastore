@@ -3,28 +3,34 @@ package libdb
 import (
 	"altastore/config"
 	"altastore/models"
+	"errors"
 )
 
-func GetProducts(categoryName string) ([]models.ProductAPI, int64, error) {
+func GetProducts(categoryName string) ([]models.ProductAPI, error) {
 	var products []models.ProductAPI
-
-	var rowsAffected int64
 
 	if categoryName == "" {
 		prodSearchRes := config.Db.Table("products").Select("products.product_id, products.product_name, categories.category_name, products.price").Joins("left join categories on categories.category_id = products.category_id").Scan(&products)	
+		
+		if prodSearchRes.Error != nil {
+			return []models.ProductAPI{}, prodSearchRes.Error
+		}		
 
-		if prodSearchRes.Error != nil ||  prodSearchRes.RowsAffected == 0 {
-			return []models.ProductAPI{}, prodSearchRes.RowsAffected, prodSearchRes.Error
+		if prodSearchRes.RowsAffected == 0 {
+			return []models.ProductAPI{}, errors.New("No product found in the product table")
 		}
-		rowsAffected = prodSearchRes.RowsAffected
 	} else {
 		prodSearchRes := config.Db.Table("products").Select("products.product_id, products.product_name, categories.category_name, products.price").Joins("left join categories on categories.category_id = products.category_id").Where("categories.category_name = ?", categoryName).Scan(&products)	
 		
-		if prodSearchRes.Error != nil ||  prodSearchRes.RowsAffected == 0 {
-			return []models.ProductAPI{}, prodSearchRes.RowsAffected, prodSearchRes.Error
+		if prodSearchRes.Error != nil {
+			return []models.ProductAPI{}, prodSearchRes.Error
 		}		
-		rowsAffected = prodSearchRes.RowsAffected
+
+		if prodSearchRes.RowsAffected == 0 {
+			return []models.ProductAPI{}, errors.New("No product found for the given cateogory")
+		}	
+
 	}
 	
-	return products, rowsAffected, nil
+	return products, nil
 }
