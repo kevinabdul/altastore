@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 	"strconv"
-	"fmt"
 
 	libdb "altastore/lib/database"
 	models "altastore/models"
@@ -24,9 +23,10 @@ func GetAdminByUserIdController(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, struct {
-		Status string
-		User models.UserAPI
-	}{Status: "success", User: targetUser})
+		Status 	string
+		Message string
+		User 	models.UserAPI
+	}{Status: "success", Message: "Admin is retrieved succesfully", User: targetUser})
 
 }
 
@@ -35,10 +35,9 @@ func AddAdminController(c echo.Context) error {
 	c.Bind(&newUser)
 
 	res, err := libdb.AddAdmin(&newUser)
-	fmt.Println(err)
 
 	if err != nil {
-		return c.JSON(http.StatusOK, struct {
+		return c.JSON(http.StatusBadRequest, struct {
 			Status string
 			Message string
 		}{Status: "success", Message: err.Error()})

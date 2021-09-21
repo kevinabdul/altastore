@@ -70,7 +70,7 @@ func AddItems(userId uint) (int64,error){
 }
 
 func InitConfigTest() *echo.Echo {
-	config.InitDBTest()
+	config.InitDBTest("users", "categories", "products", "carts")
 	AddCategories()
 	AddProducts()
 	e := echo.New()

@@ -50,7 +50,6 @@ func GetPendingPaymentsByUserId(userId int) ([]models.PendingPaymentAPI, error){
 		res = append(res, result)
 	}
 
-
 	return res, nil
 }
 

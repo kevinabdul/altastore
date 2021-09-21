@@ -50,7 +50,7 @@ type UserCaseWithBody struct {
 }
 
 func initConfigTest() *echo.Echo{
-	config.InitDBTest()
+	config.InitDBTest("users")
 	e := echo.New()
 	return e
 }

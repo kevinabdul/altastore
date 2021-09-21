@@ -21,7 +21,7 @@ func GetAdminByUserId(targetId int) (models.UserAPI, error) {
 	}
 
 	if res.RowsAffected == 0 {
-		return models.UserAPI{}, errors.New("Wrong UserId")
+		return models.UserAPI{}, errors.New("Wrong User Id")
 	}
 
 	return user, nil
