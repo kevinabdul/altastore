@@ -58,13 +58,12 @@ func UpdateCartByUserId(userCart []models.Cart, userId int)  error {
 	return nil
 }
 
-func DeleteCartByUserId(itemIds []int, userId int) (int, error) {
+func DeleteCartByUserId(itemIds []int, userId int) (error) {
 	if len(itemIds) == 0 {
-		return 0, errors.New("No item found in delete list. Please specify before deleting")
+		return errors.New("No item found in delete list. Please specify before deleting")
 	}
 
 	deletedCart := models.Cart{}
-	deletedItem := 0
 
 	err := config.Db.Transaction(func(tx *gorm.DB) error {
 		for _, itemId := range itemIds {
@@ -77,14 +76,12 @@ func DeleteCartByUserId(itemIds []int, userId int) (int, error) {
 			if deleteRes.RowsAffected == 0 {
 				return errors.New(fmt.Sprintf("No product with id %v is found in user's cart.", itemId))
 			}
-
-			deletedItem++
 		}
 		return nil
 	})
 
 	if err != nil {
-		return deletedItem, err
+		return err
 	}
-	return deletedItem, nil
+	return nil
 }

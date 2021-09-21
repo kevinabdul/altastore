@@ -3,7 +3,9 @@ package controllers
 import (
 	"altastore/config"
 	"altastore/models"
+	"altastore/util/password"
 
+	
 	"testing"
 	"net/http"
 	"net/url"
@@ -49,15 +51,20 @@ type UserCaseWithBody struct {
 
 func initConfigTest() *echo.Echo{
 	config.InitDBTest()
-	// InsertUser("kevin", "kevin@gmail.com", "1234")
-	// InsertUser("fattah", "fattah@gmail.com", "1234")
 	e := echo.New()
 	return e
 }
 
-var e = initConfigTest()
+func AddUser(name, email, userPassword string) *models.User {
+	pass, _ := password.Hash(userPassword)
+	newUser := models.User{Name: name, Email: email, Password: pass}
+	config.Db.Create(&newUser)
+	return &newUser
+}
 
 func Test_AddUserController(t *testing.T) {
+	e := initConfigTest()
+
 	userReqOK := models.User{
 		Name: "abdul",
 		Email: "abdul@gmail.com",
@@ -134,6 +141,10 @@ func Test_AddUserController(t *testing.T) {
 }
 
 func Test_GetUsersController(t *testing.T) {
+	e := initConfigTest()
+
+	AddUser("Fattah","fattah@gmail.com", "1234")
+
 	cases := []GetUserCase{
 		{
 			name : "Get users",
@@ -149,8 +160,6 @@ func Test_GetUsersController(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 			message: "Table doesnt exist",
 			size : 0}}
-
-	
 
 	for _, testcase := range cases {
 		var queryValues string
@@ -186,6 +195,10 @@ func Test_GetUsersController(t *testing.T) {
 }
 
 func Test_LoginUserController(t *testing.T) {
+	e := initConfigTest()
+
+	AddUser("abdul", "abdul@gmail.com", "1234")
+
 	userReqOK := models.User{
 		Name: "abdul",
 		Email: "abdul@gmail.com",
@@ -201,7 +214,7 @@ func Test_LoginUserController(t *testing.T) {
 	marshalledUserInvalidEmail, _ := json.Marshal(userReqInvalidEmail)
 
 	userReqInvalidPassword := models.User{
-		Name: "fattah",
+		Name: "abdul",
 		Email: "abdul@gmail.com",
 		Password: "123"}
 
@@ -256,6 +269,10 @@ func Test_LoginUserController(t *testing.T) {
 }
 
 func Test_GetUserByIdController(t *testing.T) {
+	e := initConfigTest()
+
+	AddUser("kevin", "kevin@gmail.com", "1234")
+
 	cases := []GetUserCase{
 		{
 			name : "Get user with valid id",
@@ -298,6 +315,10 @@ func Test_GetUserByIdController(t *testing.T) {
 }
 
 func Test_EditUserController(t *testing.T) {
+	e := initConfigTest()
+
+	AddUser("kevin", "kevin@gmail.com", "1234")
+
 	validEdit := models.User{
 		Name: "Fattah Abdul",
 		Email: "fattah.abdul@gmail.com",
@@ -322,7 +343,7 @@ func Test_EditUserController(t *testing.T) {
 			message: "Wrong User Id"}}
 
 	for _, testcase := range cases {
-		req := httptest.NewRequest("PUT", "/", nil)
+		req := httptest.NewRequest("PUT", "/", strings.NewReader(testcase.requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
@@ -340,13 +361,21 @@ func Test_EditUserController(t *testing.T) {
 			if err := json.Unmarshal([]byte(rec.Body.String()), &userResponse); err != nil {
 				assert.Error(t, err, "error")
 			}
-
+			
 			assert.Equal(t, testcase.message, userResponse.Message)
+			if testcase.name == "Valid edit" {
+				assert.Equal(t, validEdit.Name, userResponse.User.Name)
+				assert.Equal(t, validEdit.Email, userResponse.User.Email)
+			}				
 		}
 	}
 }
 
 func Test_DeleteUserController(t *testing.T) {
+	e := initConfigTest()
+
+	AddUser("kevin", "kevin@gmail.com", "1234")
+
 	cases := []UserCaseWithBody {
 		 {
 		 	name : "Valid Delete",

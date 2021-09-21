@@ -13,7 +13,26 @@ import (
 
 var (
 	Db *gorm.DB
+	// dbTables = map[string]interface{}{
+	// 	"users" : &models.User{},
+	// 	"categories": &models.Category{},
+	// 	"products": &models.Product{},
+	// 	"carts": &models.Cart{},
+	// 	"transactions": &models.Transaction{},
+	// 	"transaction_details": &models.TransactionDetail{},
+	// 	"payment_methods": &models.PaymentMethod{},
+	// 	"admin": &models.Admin{}}
 )
+
+// dbTables = make(map[string]interface{})
+// dbTables["users"] = &models.User{}
+// dbTables["categories"] = &models.Category{}
+// dbTables["products"] = &models.Product{}
+// dbTables["carts"] = &models.Cart{}
+// dbTables["transactions"] = &models.Transaction{}
+// dbTables["transaction_details"] = &models.TransactionDetail{}
+// dbTables["payment_methods"] = &models.PaymentMethod{}
+// dbTables["admin"] = &models.Admin{}
 
 func InitDb() {
 	err1 := godotenv.Load("./.env")
@@ -46,7 +65,7 @@ func InitDb() {
 }
 
 // this config for API testing purpose
-func InitDBTest() {
+func InitDBTest(tables ...string) {
 	// Since we invoke this from inside of altastore/controller/controllerxxx,
 	// we need to cd to parent directory twice
 	if err := godotenv.Load("./../../.env"); err != nil {
@@ -69,9 +88,13 @@ func InitDBTest() {
 }
 
 func InitMigrateTest() {
+	// for _, v := range tables {
+	// 	Db.Migrator().DropTable(dbTables[v])
+	// }
+	// for _, v := range tables {
+	// 	Db.AutoMigrate(dbTables[v])
+	// }
+
 	Db.Migrator().DropTable(&models.User{},&models.Category{}, &models.Product{}, &models.Cart{})
 	Db.AutoMigrate(&models.User{}, &models.Category{}, &models.Product{}, &models.Cart{})
-
-	// Db.Migrator().DropTable(&models.User{}, &models.Cart{})
-	// Db.AutoMigrate(&models.User{}, &models.Cart{})
 }
