@@ -11,7 +11,7 @@ func New() *echo.Echo {
 
 	registerRootMiddlewares()
 
-	registerUserRoutes()
+	//registerUserRoutes()
 
 	registerProductRoutes()
 
@@ -26,4 +26,8 @@ func New() *echo.Echo {
 	registerAdminRoutes()
 	
 	return e
+}
+
+func NewTest() {
+	e = echo.New()
 }
