@@ -13,15 +13,15 @@ import (
 
 var (
 	Db *gorm.DB
-	// dbTables = map[string]interface{}{
-	// 	"users" : &models.User{},
-	// 	"categories": &models.Category{},
-	// 	"products": &models.Product{},
-	// 	"carts": &models.Cart{},
-	// 	"transactions": &models.Transaction{},
-	// 	"transaction_details": &models.TransactionDetail{},
-	// 	"payment_methods": &models.PaymentMethod{},
-	// 	"admin": &models.Admin{}}
+	dbTables = map[string]interface{}{
+		"users" : &models.User{},
+		"categories": &models.Category{},
+		"products": &models.Product{},
+		"carts": &models.Cart{},
+		"transactions": &models.Transaction{},
+		"transaction_details": &models.TransactionDetail{},
+		"payment_methods": &models.PaymentMethod{},
+		"admins": &models.Admin{}}
 )
 
 // dbTables = make(map[string]interface{})
@@ -84,17 +84,14 @@ func InitDBTest(tables ...string) {
 	if err != nil {
 		panic(err)
 	}
-	InitMigrateTest()
+	InitMigrateTest(tables...)
 }
 
-func InitMigrateTest() {
-	// for _, v := range tables {
-	// 	Db.Migrator().DropTable(dbTables[v])
-	// }
-	// for _, v := range tables {
-	// 	Db.AutoMigrate(dbTables[v])
-	// }
-
-	Db.Migrator().DropTable(&models.User{},&models.Category{}, &models.Product{}, &models.Cart{})
-	Db.AutoMigrate(&models.User{}, &models.Category{}, &models.Product{}, &models.Cart{})
+func InitMigrateTest(tables ...string) {
+	for _, v := range tables {
+		Db.Migrator().DropTable(dbTables[v])
+	}
+	for _, v := range tables {
+		Db.AutoMigrate(dbTables[v])
+	}
 }
