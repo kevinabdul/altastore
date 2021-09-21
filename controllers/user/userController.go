@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	//"fmt"
 
 	libdb "altastore/lib/database"
 	models "altastore/models"
@@ -11,48 +12,54 @@ import (
 )
 
 func GetUsersController(c echo.Context) error {
-	users, err := libdb.GetUsers()
+	// Added for testing purpose
+	tableName := c.QueryParam("table")
+	users, err := libdb.GetUsers(tableName)
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, struct {
+			Status  string
+			Message string
+		}{Status: "Failed", Message: err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, users)
+	return c.JSON(http.StatusOK, struct {
+		Status 	string
+		Message string
+		Users 	[]models.UserAPI
+	}{Status: "success", Message: "Users are retrieved succesfully!", Users: users})
 }
 
 func GetUserByIdController(c echo.Context) error {
 	targetId, _ := strconv.Atoi(c.Param("id"))
 	
-	targetUser, rowsAffected, err := libdb.GetUserById(targetId)
+	targetUser, err := libdb.GetUserById(targetId)
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	if rowsAffected == 0 {
 		return c.JSON(http.StatusBadRequest, struct {
 			Status  string
 			Message string
-		}{Status: "Failed", Message: "Wrong User Id"})
+		}{Status: "Failed", Message: err.Error()})
 	}
-	return c.JSON(http.StatusOK, targetUser)
+	
+	return c.JSON(http.StatusOK, struct {
+		Status 	string
+		Message string
+		User 	models.UserAPI
+	}{Status: "success", Message: "User retrieval is succesfull!", User: targetUser})
 }
 
 func AddUserController(c echo.Context) error {
 	newUser := models.User{}
 	c.Bind(&newUser)
 
-	if newUser.Email == "" || newUser.Password == "" {
-		return c.JSON(http.StatusBadRequest, struct {
-			Status  string
-			Message string
-		}{Status: "Failed", Message: "Invalid Email or Password. Make sure its not empty and are of string type"})
-	}
-
 	res, err := libdb.AddUser(&newUser)
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, struct {
+			Status  string
+			Message string
+		}{Status: "Failed", Message: err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, struct {
@@ -69,17 +76,13 @@ func EditUserController(c echo.Context) error {
 	newData:= models.User{}
 	c.Bind(&newData)
 
-	edittedUser, rowsAffected, err := libdb.EditUser(newData, targetId)
+	edittedUser, err := libdb.EditUser(newData, targetId)
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	if rowsAffected == 0 {
 		return c.JSON(http.StatusBadRequest, struct {
 			Status  string
 			Message string
-		}{Status: "Failed", Message: "Wrong User Id"})
+		}{Status: "Failed", Message: err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, struct {
@@ -92,23 +95,37 @@ func EditUserController(c echo.Context) error {
 func DeleteUserController(c echo.Context) error {
 	targetId, _ := strconv.Atoi(c.Param("id"))
 	
-	rowsAffected, err := libdb.DeleteUser(targetId)
+	err := libdb.DeleteUser(targetId)
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	if rowsAffected == 0 {
 		return c.JSON(http.StatusBadRequest, struct {
 			Status  string
 			Message string
-		}{Status: "Failed", Message: "Wrong User Id"})
+		}{Status: "Failed", Message: err.Error()})
 	}
 	
-
 	return c.JSON(http.StatusOK, struct {
 		Status string
 		Message string
 	}{Status: "success", Message: "User has been deleted!"})
+}
 
+func LoginUserController(c echo.Context) error {
+	loggingUser := &models.User{}
+	c.Bind(loggingUser)
+
+	token, err := libdb.LoginUser(loggingUser)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, struct {
+			Status string
+			Message string
+		}{Status: "failed", Message: err.Error()})
+	}
+	
+	return c.JSON(http.StatusOK, struct {
+		Status string
+		Message string
+		Token string
+	}{Status: "success", Message: "You are logged in!", Token: token})
 }

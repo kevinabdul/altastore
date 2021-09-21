@@ -4,37 +4,54 @@ import (
 	"altastore/config"
 	"altastore/models"
 	"altastore/util/password"
+	"errors"
+	"strings"
+	//"fmt"
 )
 
-func GetUsers() ([]models.UserAPI, error) {
+func GetUsers(tableName string) ([]models.UserAPI, error) {
+	if tableName == "" {
+		tableName = "users"
+	}
 	var users []models.UserAPI
 
-	res := config.Db.Model(&models.User{}).Find(&users)
+	res := config.Db.Table(tableName).Find(&users)
 
 	if res.Error != nil {
+		if strings.HasPrefix(res.Error.Error(), "Error 1146") {
+			return nil, errors.New("Table doesnt exist")
+		}
 		return nil, res.Error
 	}
 	return users, nil
 }
 
 
-func GetUserById(targetId int) (models.UserAPI, int, error) {
+func GetUserById(targetId int) (models.UserAPI,  error) {
 	var user models.UserAPI
 
 	res := config.Db.Model(&models.User{}).Find(&user, targetId)
-
+	
 	if res.Error != nil {
-		return models.UserAPI{}, 0, res.Error
+		return models.UserAPI{},res.Error
 	}
 
 	if res.RowsAffected == 0 {
-		return models.UserAPI{}, 0, nil
+		return models.UserAPI{}, errors.New("Wrong User Id")
 	}
-
-	return user, 1, nil
+	
+	return user, nil
 }
 
 func AddUser(newUser *models.User) (models.UserAPI, error) {
+	if newUser.Email == "" || newUser.Password == "" {
+		return models.UserAPI{}, errors.New("Invalid Email or Password. Make sure its not empty and are of string type")
+	}
+
+	if newUser.Name == "" {
+		return models.UserAPI{}, errors.New("Name cant be empty")
+	}
+
 	hashedPassword, err := password.Hash(newUser.Password)
 	if err != nil {
 		return models.UserAPI{}, err
@@ -53,17 +70,17 @@ func AddUser(newUser *models.User) (models.UserAPI, error) {
 	return newUserAPI, nil
 }
 
-func EditUser(newData models.User, targetId int) (models.UserAPI ,int, error) {
+func EditUser(newData models.User, targetId int) (models.UserAPI, error) {
 	targetUser := models.User{}
 
-	res := config.Db.Where(`id = ?`, targetId).Find(&targetUser).Omit("password", "id").Updates(newData)
+	res := config.Db.Where(`user_id = ?`, targetId).Find(&targetUser).Omit("password", "id").Updates(newData)
 
 	if res.Error != nil {
-		return models.UserAPI{}, 0, res.Error
+		return models.UserAPI{},res.Error
 	}
 
 	if res.RowsAffected == 0 {
-		return models.UserAPI{}, 0, nil
+		return models.UserAPI{}, errors.New("Wrong User Id")
 	}
 
 	edittedUser := models.UserAPI{}
@@ -71,19 +88,19 @@ func EditUser(newData models.User, targetId int) (models.UserAPI ,int, error) {
 	edittedUser.Name = targetUser.Name
 	edittedUser.Email = targetUser.Email
 
-	return edittedUser, 1, nil
+	return edittedUser, nil
 }
 
-func DeleteUser(targetId int) (int, error) {	
+func DeleteUser(targetId int) (error) {	
 	targetUser := models.User{}
 	res := config.Db.Find(&targetUser, targetId)
 
 	if res.Error != nil {
-		return 0, res.Error
+		return res.Error
 	}
 
 	if res.RowsAffected == 0 {
-		return 0, nil
+		return errors.New("Wrong User Id")
 	}
 
 	config.Db.Exec("set foreign_key_checks = 0")
@@ -93,12 +110,12 @@ func DeleteUser(targetId int) (int, error) {
 	config.Db.Exec("set foreign_key_checks = 1")
 
 	if res.Error != nil {
-		return 0, res.Error
+		return res.Error
 	}
 
 	if res.RowsAffected == 0 {
-		return 0, nil
+		return errors.New("Failed to delete user")
 	}
 
-	return 1, nil
+	return nil
 }

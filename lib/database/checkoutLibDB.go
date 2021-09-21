@@ -37,18 +37,17 @@ func GetCheckoutByUserId(userId int) (models.CheckoutAPI, error){
 	return checkout, nil
 }
 
-func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.TransactionAPI, int64, error) {
-	payment.PaymentMethodID = payment.PaymentMethodID
+func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.TransactionAPI, error) {
 	carts := []models.CartAPI{}
 
 	findCartRes := config.Db.Table("carts").Select("products.product_id, products.product_name, products.price, carts.quantity").Joins("left join products on carts.product_id = products.product_id").Where(`user_id = ?`, userId).Find(&carts)
 
 	if findCartRes.Error != nil {
-		return models.TransactionAPI{}, findCartRes.RowsAffected, findCartRes.Error
+		return models.TransactionAPI{}, findCartRes.Error
 	}
 
 	if findCartRes.RowsAffected == 0 {
-		return models.TransactionAPI{}, findCartRes.RowsAffected, errors.New("No products found in the cart. Add products first before checking out")
+		return models.TransactionAPI{}, errors.New("No products found in the cart. Add products first before checking out")
 	}
 
 	/* transactionAPI, transactionCreation, transaction, and transactionDetail here means:
@@ -84,13 +83,9 @@ func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.T
 
 		if transactionCreation.Error != nil {
 			if strings.HasPrefix(transactionCreation.Error.Error(), "Error 1452") {
-					return errors.New(fmt.Sprintf("No payment_method_id '%v' found in the payment method table", payment.PaymentMethodID))
-				}
+				return errors.New(fmt.Sprintf("No payment_method_id '%v' found in the payment method table", payment.PaymentMethodID))
+			}
 			return transactionCreation.Error
-		}
-
-		if transactionCreation.RowsAffected == 0 {
-			return errors.New("Failed to add transaction")
 		}
 
 		transactionDetail := models.TransactionDetail{}
@@ -111,21 +106,9 @@ func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.T
 				}
 				return transactionDetailCreation.Error
 			}
-
-			if transactionDetailCreation.RowsAffected == 0 {
-				return errors.New("Failed to add transaction detail")
-			}
 		}
 
-		paymentMethodCheck := config.Db.Table("payment_methods").Where("payment_method_id = ?", payment.PaymentMethodID).Find(&paymentChoiceAPI)
-
-		if paymentMethodCheck.Error != nil {
-			return  paymentMethodCheck.Error
-		}
-
-		if paymentMethodCheck.RowsAffected == 0 {
-			return  errors.New("Payment method is not supported")
-		}
+		config.Db.Table("payment_methods").Where("payment_method_id = ?", payment.PaymentMethodID).Find(&paymentChoiceAPI)
 
 		transactionAPI.InvoiceID = invoiceId
 		transactionAPI.Total = uint(total)
@@ -136,8 +119,8 @@ func AddCheckoutByUserId(payment *models.PaymentMethodAPI, userId int) (models.T
 	})
 
 	if err != nil {
-		return transactionAPI, transactionCreation.RowsAffected, err
+		return transactionAPI, err
 	}
 
-	return transactionAPI, transactionCreation.RowsAffected, nil
+	return transactionAPI, nil
 }

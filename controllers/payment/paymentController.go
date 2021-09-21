@@ -23,8 +23,9 @@ func GetPendingPaymentsController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, struct {
 		Status 	string
+		Message string
 		Data 	[]models.PendingPaymentAPI
-	}{Status: "success", Data: pendingPayments})
+	}{Status: "success", Message: "Pending payments are retrieved succesfully", Data: pendingPayments})
 }
 
 func AddPendingPaymentController(c echo.Context) error {
@@ -40,15 +41,9 @@ func AddPendingPaymentController(c echo.Context) error {
 		}{Status: "failed", Message: err.Error()})
 	}
 
-	// if rowsAffected == 0 {
-	// 	return c.JSON(http.StatusBadRequest, struct {
-	// 		Status 	string
-	// 		Message string
-	// 	}{Status: "failed", Message: "fail to make a payment!"})
-	// }
-
 	return c.JSON(http.StatusOK, struct {
 		Status 		string
+		Message 	string
 		Detail		models.ReceiptAPI
-	}{Status: "success", Detail: receiptAPI})
+	}{Status: "success", Message: "Payment is succesfull" , Detail: receiptAPI})
 }
