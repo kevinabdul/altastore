@@ -3,12 +3,18 @@ package routes
 import(
 	user "altastore/controllers/user"
 	"altastore/middlewares"
+	//"fmt"
+	//"reflect"
 )
 
-func registerUserRoutes() {
-	e.GET("/users", user.GetUsersController, middlewares.AuthenticateUser)
+func registerUserRoutes() map[string][]interface{} {
+	userRoutesMap := map[string][]interface{}{}
 
-	e.POST("/users", user.AddUserController)
+	getUsers := e.GET("/users", user.GetUsersController, middlewares.AuthenticateUser)
+	userRoutesMap["GET"] = append(userRoutesMap["GET"], getUsers.Name)
+
+	postUser := e.POST("/users", user.AddUserController)
+	userRoutesMap["POST"] = append(userRoutesMap["POST"], postUser.Name)
 
 	r := e.Group("/users/:id")
 
@@ -16,10 +22,15 @@ func registerUserRoutes() {
 
 	r.Use(middlewares.CheckId)
 
-	r.GET("", user.GetUserByIdController)
+	getUserById := r.GET("", user.GetUserByIdController)
+	userRoutesMap["GET"] = append(userRoutesMap["GET"], getUserById.Name)
 
-	r.PUT("", user.EditUserController)
+	editUserById := r.PUT("", user.EditUserController)
+	userRoutesMap["PUT"] = append(userRoutesMap["GET"], editUserById.Name)
 
-	r.DELETE("", user.DeleteUserController)
+	deleteUserById := r.DELETE("", user.DeleteUserController)
+	userRoutesMap["DELETE"] = append(userRoutesMap["GET"], deleteUserById.Name)
+	
+	return userRoutesMap
 }
 

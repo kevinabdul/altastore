@@ -1,0 +1,11 @@
+mode: set
+altastore/routes/cartRoutes.go:8.52,25.2 10 0
+altastore/routes/checkoutRoutes.go:8.55,24.2 10 0
+altastore/routes/loginRoutes.go:7.28,11.2 1 0
+altastore/routes/productRoutes.go:7.30,9.2 1 0
+altastore/routes/userRoutes.go:10.52,35.2 15 0
+altastore/routes/adminRoutes.go:8.53,24.2 9 0
+altastore/routes/mainRoutes.go:9.23,29.2 9 0
+altastore/routes/mainRoutes.go:31.16,33.2 1 1
+altastore/routes/paymentRoutes.go:8.55,23.2 9 1
+altastore/routes/rootMiddleware.go:7.31,14.2 2 0

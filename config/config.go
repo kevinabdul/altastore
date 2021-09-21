@@ -24,16 +24,6 @@ var (
 		"admins": &models.Admin{}}
 )
 
-// dbTables = make(map[string]interface{})
-// dbTables["users"] = &models.User{}
-// dbTables["categories"] = &models.Category{}
-// dbTables["products"] = &models.Product{}
-// dbTables["carts"] = &models.Cart{}
-// dbTables["transactions"] = &models.Transaction{}
-// dbTables["transaction_details"] = &models.TransactionDetail{}
-// dbTables["payment_methods"] = &models.PaymentMethod{}
-// dbTables["admin"] = &models.Admin{}
-
 func InitDb() {
 	err1 := godotenv.Load("./.env")
 	if err1 != nil {
