@@ -61,9 +61,9 @@ func initConfigTest() *echo.Echo{
 	return e
 }
 
-var e = initConfigTest()
-
 func Test_GetProductsController(t *testing.T) {
+	e := initConfigTest()
+
 	cases := []GetProductCase{
 		{
 			name : "Get products",

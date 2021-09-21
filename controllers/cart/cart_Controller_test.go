@@ -77,9 +77,9 @@ func InitConfigTest() *echo.Echo {
 	return e
 }
 
-var e = InitConfigTest()
-
 func Test_GetCartByUserIdController(t *testing.T) {
+
+	e := InitConfigTest()
 
 	testcases := []CartCase{
 		{
@@ -144,6 +144,8 @@ func Test_GetCartByUserIdController(t *testing.T) {
 }
 
 func Test_UpdateCartByUserIdController(t *testing.T) {
+	e := InitConfigTest()
+
 	validUpdate := []models.Cart{
 		{
 			ProductID: 1, Quantity: 1}, 
@@ -202,14 +204,23 @@ func Test_UpdateCartByUserIdController(t *testing.T) {
 }
 
 func Test_DeleteCartByUserIdController(t *testing.T) {
+	e := InitConfigTest()
+
+	userId , _:= AddUser("ankara@gmail.com")
+
+	AddItems(userId)
+
 	validDelete := []int{2} 
 	var validData bytes.Buffer
 	json.NewEncoder(&validData).Encode(validDelete)
 
 	invalidDelete := []int{9891211}
-
 	var invalidData bytes.Buffer
 	json.NewEncoder(&invalidData).Encode(invalidDelete)
+
+	invalidDeleteEmpty := []int{} 
+	var invalidDataEmpty bytes.Buffer
+	json.NewEncoder(&invalidDataEmpty).Encode(invalidDeleteEmpty)
 
 
 	testcases := []CartCase{
@@ -228,9 +239,15 @@ func Test_DeleteCartByUserIdController(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 			requestBody: invalidData.String(),
 			message: "No product with id 9891211 is found in user's cart.",
-			size: 0}}
-
-	userId , _:= AddUser("ankara@gmail.com")
+			size: 0}, 
+		{
+			name: "Delete user cart empty",
+			method: "DELETE",
+			Path: "/carts",
+			expectedCode: http.StatusBadRequest,
+			requestBody: invalidDataEmpty.String(),
+			message: "No item found in delete list. Please specify before deleting",
+			size: 0},}
 
 	for _, testcase := range testcases {	
 		req := httptest.NewRequest("DELETE", "/", strings.NewReader(testcase.requestBody))

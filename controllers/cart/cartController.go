@@ -59,20 +59,13 @@ func DeleteCartByUserIdController(c echo.Context) error {
 	var userCart []int
 	c.Bind(&userCart)
 	
-	rowsAffected, err := libdb.DeleteCartByUserId(userCart, userId)	
+	err := libdb.DeleteCartByUserId(userCart, userId)	
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, struct {
 			Status 	string
 			Message string
 		}{Status: "failed", Message: err.Error()})
-	}
-
-	if rowsAffected == 0 {
-		return c.JSON(http.StatusBadRequest, struct {
-			Status 	string
-			Message string
-		}{Status: "success", Message: "No change in user's cart"})
 	}
 
 	return c.JSON(http.StatusOK, struct {
