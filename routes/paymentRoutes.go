@@ -1,7 +1,7 @@
 package routes
 
 import(
-	payment "altastore/controllers/payment"
+	handler "altastore/controllers"
 	"altastore/middlewares"
 )
 
@@ -12,11 +12,11 @@ func registerPaymentRoutes() map[string][]interface{} {
 
 	paymentRoutesMap := map[string][]interface{}{}
 
-	getPayment := paymentGroup.GET("", payment.GetPendingPaymentsController)
+	getPayment := paymentGroup.GET("", handler.GetPendingPaymentsController)
 	paymentRoutesMap["GET"] = append(paymentRoutesMap["GET"], getPayment.Name)
 
-	paymentGroup.POST("", payment.AddPendingPaymentController)
-	postPayment := paymentGroup.POST("", payment.AddPendingPaymentController)
+	paymentGroup.POST("", handler.AddPendingPaymentController)
+	postPayment := paymentGroup.POST("", handler.AddPendingPaymentController)
 	paymentRoutesMap["POST"] = append(paymentRoutesMap["POST"], postPayment.Name)	
 
 	return paymentRoutesMap

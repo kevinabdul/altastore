@@ -56,9 +56,9 @@ func InitDb() {
 
 // this config for API testing purpose
 func InitDBTest(tables ...string) {
-	// Since we invoke this from inside of altastore/controller/controllerxxx,
+	// Since we invoke this from inside of altastore/controller,
 	// we need to cd to parent directory twice
-	if err := godotenv.Load("./../../.env"); err != nil {
+	if err := godotenv.Load("./../.env"); err != nil {
 		log.Fatal(fmt.Sprintf("Error loading .env file. Got this error: %v", err))
 	}
 

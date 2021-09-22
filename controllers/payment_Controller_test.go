@@ -40,36 +40,6 @@ type AddPendingPaymentResponse struct {
 	Detail			models.ReceiptAPI
 }
 
-func AddUser(name, email string) (uint,error) {
-	user := models.User{Name: name, Email: email, Password: "1234"}
-	res := config.Db.FirstOrCreate(&user)
-	
-	if res.Error != nil {
-		return uint(0), res.Error
-	}
-	return user.UserID, nil
-}
-
-func AddCategories() {
-	categories := []models.Category{{CategoryName: "book"}, {CategoryName: "electronic device"}, {CategoryName: "sport equipment"}}
-	config.Db.Create(&categories)
-}
-
-func AddProducts() {
-	products := []models.Product{{ProductName: "Air Jordan M23", Price: 2300500, CategoryID: 3}, {ProductName: "Manusia Harimau", Price: 90500, CategoryID: 1}}
-	config.Db.Create(&products)
-}
-
-func AddItems(userId uint) (int64,error){
-	cart := []models.Cart{{UserID: userId, ProductID: 1, Quantity: 3}, {UserID: userId, ProductID: 2, Quantity: 1}}
-	res := config.Db.Create(&cart); 
-	
-	if res != nil || res.RowsAffected == 0 {
-		return res.RowsAffected, res.Error
-	}
-	return res.RowsAffected, nil
-}
-
 func addCheckOut(payment *models.PaymentMethodAPI, userId int) (models.TransactionAPI, error) {
 	transactionAPI, err := libdb.AddCheckoutByUserId(payment, userId) 
 	if err != nil {
@@ -78,12 +48,8 @@ func addCheckOut(payment *models.PaymentMethodAPI, userId int) (models.Transacti
 	return transactionAPI, nil
 }
 
-func AddPaymentMethods() {
-	payment_methods := []models.PaymentMethod{{PaymentMethodName: "alfamart"}, {PaymentMethodName: "gopay"},{PaymentMethodName: "bank transfer"}}
-	config.Db.Create(&payment_methods)
-}
 
-func InitConfigTest() *echo.Echo {
+func InitPaymentTest() *echo.Echo {
 	config.InitDBTest("users", "categories", "products", "carts", "transactions", "transaction_details", "payment_methods")
 	AddCategories()
 	AddProducts()
@@ -93,7 +59,7 @@ func InitConfigTest() *echo.Echo {
 }
 
 func Test_GetPendingPaymentsController(t *testing.T) {
-	e := InitConfigTest()
+	e := InitPaymentTest()
 
 	testcases := []PaymentCase{
 		{
@@ -113,7 +79,7 @@ func Test_GetPendingPaymentsController(t *testing.T) {
 
 	testcase0 := testcases[0]
 	
-	userId , _:= AddUser("Fattah", "fattah@gmail.com")
+	userId , _:= AddUser("Fattah", "fattah@gmail.com", "1234")
 
 	req := httptest.NewRequest("GET", "/", nil)
 	rec := httptest.NewRecorder()
@@ -160,9 +126,9 @@ func Test_GetPendingPaymentsController(t *testing.T) {
 }
 
 func Test_AddPendingPaymentController(t *testing.T) {
-	e := InitConfigTest()
+	e := InitPaymentTest()
 
-	userId , _:= AddUser("ali", "ali@gmail.com")
+	userId , _:= AddUser("ali", "ali@gmail.com", "1234")
 
 	AddItems(userId)
 

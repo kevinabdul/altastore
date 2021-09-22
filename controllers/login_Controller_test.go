@@ -3,8 +3,6 @@ package controllers
 import (
 	"altastore/config"
 	"altastore/models"
-	"altastore/util/password"
-
 	
 	"testing"
 	"net/http"
@@ -16,53 +14,14 @@ import (
 
 )
 
-type GetUserCase struct {
-	name 			string
-	method  		string
-	Path 			string
-	expectedCode	int
-	message 		string
-	size  			int
-}
-
-type UsersResponse struct {
-	Status 	string
-	Message string
-	Users  []models.UserAPI			
-}
-
-type UserResponse struct {
-	Status string
-	Message string
-	User  models.UserAPI
-}
-
-// add user, edit user, delete user, and login use this
-// Whatever cases that need to send a request body can use this struct
-type UserCaseWithBody struct {
-	name 			string
-	method  		string
-	Path 			string
-	expectedCode	int
-	requestBody  	string
-	message 		string
-}
-
-func initConfigTest() *echo.Echo{
+func InitLoginTest() *echo.Echo{
 	config.InitDBTest("users")
 	e := echo.New()
 	return e
 }
 
-func AddUser(name, email, userPassword string) *models.User {
-	pass, _ := password.Hash(userPassword)
-	newUser := models.User{Name: name, Email: email, Password: pass}
-	config.Db.Create(&newUser)
-	return &newUser
-}
-
 func Test_LoginUserController(t *testing.T) {
-	e := initConfigTest()
+	e := InitLoginTest()
 
 	AddUser("abdul", "abdul@gmail.com", "1234")
 

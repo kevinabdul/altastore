@@ -1,7 +1,7 @@
 package routes
 
 import(
-	cart "altastore/controllers/cart"
+	handler "altastore/controllers"
 	"altastore/middlewares"
 )
 
@@ -12,13 +12,13 @@ func registerCartRoutes() map[string][]interface{} {
 
 	cartRoutesMap := map[string][]interface{}{}
 
-	getCartByUserId := cartGroup.GET("", cart.GetCartByUserIdController)
+	getCartByUserId := cartGroup.GET("", handler.GetCartByUserIdController)
 	cartRoutesMap["GET"] = append(cartRoutesMap["GET"], getCartByUserId.Name)
 
-	editcart := cartGroup.PUT("", cart.UpdateCartByUserIdController)
+	editcart := cartGroup.PUT("", handler.UpdateCartByUserIdController)
 	cartRoutesMap["PUT"] = append(cartRoutesMap["GET"], editcart.Name)
 
-	deleteCart := cartGroup.DELETE("", cart.DeleteCartByUserIdController)
+	deleteCart := cartGroup.DELETE("", handler.DeleteCartByUserIdController)
 	cartRoutesMap["DELETE"] = append(cartRoutesMap["GET"], deleteCart.Name)
 
 	return cartRoutesMap
