@@ -30,39 +30,26 @@ type ProductsResponse struct {
 	Products  	[]models.ProductAPI
 }
 
-func InsertDummyCategories() error{
-	data := []models.Category{{CategoryName: "book"}, {CategoryName: "electronic device"}, {CategoryName: "sport equipment"}}
-
-	if err := config.Db.Table("categories").Create(&data).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-
-func InsertDummyProducts() error{
-	data := []models.Product{{ProductName: "Air Jordan M23", CategoryID: 3, Price: 2400000}, 
-	{ProductName: "Air Jordan M24", CategoryID: 3, Price: 2600000}, 
-	{ProductName: "Iphone 13", CategoryID: 2, Price: 21500000}}
-	
-	if err := config.Db.Table("products").Create(&data).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func initConfigTest() *echo.Echo{
+func InitProductTest() *echo.Echo{
 	config.InitDBTest()
-	InsertDummyCategories()
-	InsertDummyProducts()
+	AddCategories()
+	AddProducts()
 	e := echo.New()
 	return e
 }
 
+func AddCategories() {
+	categories := []models.Category{{CategoryName: "book"}, {CategoryName: "electronic device"}, {CategoryName: "sport equipment"}}
+	config.Db.Create(&categories)
+}
+
+func AddProducts() {
+	products := []models.Product{{ProductName: "Air Jordan M23", Price: 2300500, CategoryID: 3}, {ProductName: "Manusia Harimau", Price: 90500, CategoryID: 1}}
+	config.Db.Create(&products)
+}
+
 func Test_GetProductsController(t *testing.T) {
-	e := initConfigTest()
+	e := InitProductTest()
 
 	cases := []GetProductCase{
 		{
@@ -71,7 +58,7 @@ func Test_GetProductsController(t *testing.T) {
 			Path: "/products",
 			expectedCode: http.StatusOK,
 			message: "Products retrieval are succesfull",
-			size : 3},
+			size : 2},
 		{
 			name : "Get products with invalid category query value",
 			method: "GET",

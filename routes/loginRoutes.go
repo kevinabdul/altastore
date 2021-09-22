@@ -1,11 +1,11 @@
 package routes
 
 import(
-	login "altastore/controllers/login"
+	handler "altastore/controllers"
 )
 
 func registerLoginRoutes() {
-	e.POST("/login", login.LoginUserController)
+	e.POST("/login", handler.LoginUserController)
 
 	// e.POST("/login/admins", user.LoginUserController)
 }

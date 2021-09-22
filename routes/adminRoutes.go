@@ -1,12 +1,15 @@
 package routes
 
 import(
-	admin "altastore/controllers/admin"
+	handler "altastore/controllers"
 	"altastore/middlewares"
 )
 
-func registerAdminRoutes() {
-	e.POST("/admins", admin.AddAdminController)
+func registerAdminRoutes() map[string][]interface{} {
+	adminRoutesMap := map[string][]interface{}{}
+
+	postAdmin := e.POST("/admins", handler.AddAdminController)
+	adminRoutesMap["POST"] = append(adminRoutesMap["POST"], postAdmin.Name)
 
 	r := e.Group("/admins/:id")
 
@@ -14,10 +17,9 @@ func registerAdminRoutes() {
 
 	r.Use(middlewares.CheckId)
 
-	r.GET("", admin.GetAdminByUserIdController)
+	getAdmin := r.GET("", handler.GetAdminByUserIdController, middlewares.AuthenticateUser)
+	adminRoutesMap["GET"] = append(adminRoutesMap["GET"], getAdmin.Name)
 
-	// r.PUT("", admin.EditAdminController)
-
-	// r.DELETE("", admin.DeleteAdminController)
+	return adminRoutesMap
 }
 

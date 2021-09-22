@@ -1,17 +1,24 @@
 package routes
 
 import(
-	checkout "altastore/controllers/checkout"
+	handler "altastore/controllers"
 	"altastore/middlewares"
 )
 
-func registerCheckoutRoutes() {
+func registerCheckoutRoutes() map[string][]interface{}{
 	checkoutGroup := e.Group("/checkout")
 
 	checkoutGroup.Use(middlewares.AuthenticateUser)
 
-	checkoutGroup.GET("", checkout.GetCheckoutByUserIdController)
+	checkoutMap := map[string][]interface{}{}
 
-	checkoutGroup.POST("", checkout.AddCheckoutByUserIdController)
+	checkoutGroup.GET("", handler.GetCheckoutByUserIdController)
+	getCheckout := checkoutGroup.GET("", handler.GetCheckoutByUserIdController)
+	checkoutMap["GET"] = append(checkoutMap["GET"], getCheckout.Name)
+
+	checkoutGroup.POST("", handler.AddCheckoutByUserIdController)
+	postCheckout := checkoutGroup.POST("", handler.AddCheckoutByUserIdController)
+	checkoutMap["POST"] = append(checkoutMap["POST"], postCheckout.Name)	
+
+	return checkoutMap
 }
-

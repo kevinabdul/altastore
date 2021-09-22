@@ -3,8 +3,6 @@ package controllers
 import (
 	"altastore/config"
 	"altastore/models"
-	"altastore/util/password"
-
 	
 	"testing"
 	"net/http"
@@ -42,17 +40,10 @@ type AdminCaseWithBody struct {
 	message 		string
 }
 
-func initConfigTest() *echo.Echo{
+func InitAdminTest() *echo.Echo{
 	config.InitDBTest("users", "admins")
 	e := echo.New()
 	return e
-}
-
-func AddUser(name, email, userPassword string) *models.User {
-	pass, _ := password.Hash(userPassword)
-	newUser := models.User{Name: name, Email: email, Password: pass}
-	config.Db.Create(&newUser)
-	return &newUser
 }
 
 func AddAdmin(userId uint) *models.Admin {
@@ -63,7 +54,7 @@ func AddAdmin(userId uint) *models.Admin {
 
 
 func Test_AddAdminController(t *testing.T) {
-	e := initConfigTest()
+	e := InitAdminTest()
 
 	userReqOK := models.User{
 		Name: "abdul",
@@ -126,10 +117,10 @@ func Test_AddAdminController(t *testing.T) {
 }
 
 func Test_GetAdminByUserIdController(t *testing.T) {
-	e := initConfigTest()
+	e := InitAdminTest()
 
-	newUser := AddUser("kevin", "kevin@gmail.com", "1234")
-	AddAdmin(newUser.UserID)
+	userId,_ := AddUser("kevin", "kevin@gmail.com", "1234")
+	AddAdmin(userId)
 
 	cases := []GetAdminCase{
 		{

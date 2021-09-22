@@ -39,26 +39,6 @@ type GetCartResponse struct {
 // 	Detail 			models.TransactionAPI
 // }
 
-func AddUser(email string) (uint,error) {
-	user := models.User{Name: "Fattah", Email: email, Password: "1234"}
-	res := config.Db.FirstOrCreate(&user)
-	
-	if res.Error != nil {
-		return uint(0), res.Error
-	}
-	return user.UserID, nil
-}
-
-func AddCategories() {
-	categories := []models.Category{{CategoryName: "book"}, {CategoryName: "electronic device"}, {CategoryName: "sport equipment"}}
-	config.Db.Create(&categories)
-}
-
-func AddProducts() {
-	products := []models.Product{{ProductName: "Air Jordan M23", Price: 2300500, CategoryID: 3}, {ProductName: "Manusia Harimau", Price: 90500, CategoryID: 1}}
-	config.Db.Create(&products)
-}
-
 func AddItems(userId uint) (int64,error){
 	cart := []models.Cart{{UserID: userId, ProductID: 1, Quantity: 3}, {UserID: userId, ProductID: 2, Quantity: 1}}
 	res := config.Db.Create(&cart); 
@@ -69,7 +49,7 @@ func AddItems(userId uint) (int64,error){
 	return res.RowsAffected, nil
 }
 
-func InitConfigTest() *echo.Echo {
+func InitCartTest() *echo.Echo {
 	config.InitDBTest("users", "categories", "products", "carts")
 	AddCategories()
 	AddProducts()
@@ -79,7 +59,7 @@ func InitConfigTest() *echo.Echo {
 
 func Test_GetCartByUserIdController(t *testing.T) {
 
-	e := InitConfigTest()
+	e := InitCartTest()
 
 	testcases := []CartCase{
 		{
@@ -99,7 +79,7 @@ func Test_GetCartByUserIdController(t *testing.T) {
 
 	testcase0 := testcases[0]
 	
-	userId , _:= AddUser("fattah@gmail.com")
+	userId , _:= AddUser("Fattah", "fattah@gmail.com", "1234")
 
 	req := httptest.NewRequest("GET", "/", nil)
 	rec := httptest.NewRecorder()
@@ -144,7 +124,7 @@ func Test_GetCartByUserIdController(t *testing.T) {
 }
 
 func Test_UpdateCartByUserIdController(t *testing.T) {
-	e := InitConfigTest()
+	e := InitCartTest()
 
 	validUpdate := []models.Cart{
 		{
@@ -179,7 +159,7 @@ func Test_UpdateCartByUserIdController(t *testing.T) {
 			message: "No product id 9891211 found in the product table",
 			size: 0}}
 
-	userId , _:= AddUser("ali@gmail.com")
+	userId , _:= AddUser("Ali", "ali@gmail.com", "1234")
 
 	for _, testcase := range testcases {	
 		req := httptest.NewRequest("PUT", "/", strings.NewReader(testcase.requestBody))
@@ -204,9 +184,9 @@ func Test_UpdateCartByUserIdController(t *testing.T) {
 }
 
 func Test_DeleteCartByUserIdController(t *testing.T) {
-	e := InitConfigTest()
+	e := InitCartTest()
 
-	userId , _:= AddUser("ankara@gmail.com")
+	userId , _:= AddUser("Ankara", "ankara@gmail.com", "1234")
 
 	AddItems(userId)
 

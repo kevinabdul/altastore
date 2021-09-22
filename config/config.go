@@ -24,16 +24,6 @@ var (
 		"admins": &models.Admin{}}
 )
 
-// dbTables = make(map[string]interface{})
-// dbTables["users"] = &models.User{}
-// dbTables["categories"] = &models.Category{}
-// dbTables["products"] = &models.Product{}
-// dbTables["carts"] = &models.Cart{}
-// dbTables["transactions"] = &models.Transaction{}
-// dbTables["transaction_details"] = &models.TransactionDetail{}
-// dbTables["payment_methods"] = &models.PaymentMethod{}
-// dbTables["admin"] = &models.Admin{}
-
 func InitDb() {
 	err1 := godotenv.Load("./.env")
 	if err1 != nil {
@@ -66,9 +56,9 @@ func InitDb() {
 
 // this config for API testing purpose
 func InitDBTest(tables ...string) {
-	// Since we invoke this from inside of altastore/controller/controllerxxx,
+	// Since we invoke this from inside of altastore/controller,
 	// we need to cd to parent directory twice
-	if err := godotenv.Load("./../../.env"); err != nil {
+	if err := godotenv.Load("./../.env"); err != nil {
 		log.Fatal(fmt.Sprintf("Error loading .env file. Got this error: %v", err))
 	}
 

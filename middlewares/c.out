@@ -1,0 +1,22 @@
+mode: set
+altastore/middlewares/protect.go:14.63,15.36 1 0
+altastore/middlewares/protect.go:15.36,18.47 2 0
+altastore/middlewares/protect.go:25.3,27.25 2 0
+altastore/middlewares/protect.go:34.3,36.28 2 0
+altastore/middlewares/protect.go:43.3,48.13 3 0
+altastore/middlewares/protect.go:55.3,57.17 2 0
+altastore/middlewares/protect.go:18.47,23.4 1 0
+altastore/middlewares/protect.go:27.25,32.4 1 0
+altastore/middlewares/protect.go:36.28,41.4 1 0
+altastore/middlewares/protect.go:48.13,53.4 1 0
+altastore/middlewares/protect.go:61.54,62.36 1 0
+altastore/middlewares/protect.go:62.36,65.25 3 0
+altastore/middlewares/protect.go:71.3,71.17 1 0
+altastore/middlewares/protect.go:65.25,70.4 1 0
+altastore/middlewares/protect.go:75.64,77.83 1 1
+altastore/middlewares/protect.go:84.2,84.67 1 1
+altastore/middlewares/protect.go:88.2,88.23 1 1
+altastore/middlewares/protect.go:77.83,78.58 1 1
+altastore/middlewares/protect.go:81.3,81.50 1 1
+altastore/middlewares/protect.go:78.58,80.4 1 0
+altastore/middlewares/protect.go:84.67,86.3 1 1
